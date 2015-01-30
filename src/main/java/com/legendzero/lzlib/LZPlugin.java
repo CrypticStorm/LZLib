@@ -28,9 +28,12 @@ import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.config.ConfigHandler;
 import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
+import com.legendzero.lzlib.lang.LZLibLang;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.logging.Level;
 
 public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E> {
 
@@ -39,7 +42,7 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
 
     @Override
     public void onLoad() {
-        this.getLogger().info("Loading configuration serializables");
+        LZLibLang.LOAD_SERIALIZABLES.log(this.getLogger(), Level.INFO);
         for (Class<? extends ConfigurationSerializable> clazz :
                 this.getSerializableClasses()) {
             ConfigurationSerialization.registerClass(clazz);
@@ -48,13 +51,13 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
 
     @Override
     public void onEnable() {
-        this.getLogger().info("Loading configuration");
+        LZLibLang.LOAD_CONFIGURATION.log(this.getLogger(), Level.INFO);
         this.configHandler = new ConfigHandler<>((E) this);
         for (Class<? extends Config> clazz : this.getConfigClasses()) {
             this.configHandler.register(clazz);
         }
 
-        this.getLogger().info("Loading command system");
+        LZLibLang.LOAD_COMMANDS.log(this.getLogger(), Level.INFO);
         this.commandHandler = new CommandHandler<>((E) this);
         for (Command<E> command : this.getRootCommands()) {
             this.commandHandler.register(command);

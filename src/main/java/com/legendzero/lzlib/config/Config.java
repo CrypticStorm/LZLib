@@ -35,11 +35,17 @@ public interface Config<E extends Enum<E> & Config<E>> {
     Object getDefault();
 
     default Object get() {
-        return this.getFileData().get(this.getPath(), this.getDefault());
+        if (this.getFileData() != null) {
+            return this.getFileData().get(this.getPath(), this.getDefault());
+        } else {
+            return this.getDefault();
+        }
     }
 
     default void set(Object value) {
-        this.getFileData().set(this.getPath(), value);
+        if (this.getFileData() != null) {
+            this.getFileData().set(this.getPath(), value);
+        }
     }
 
     default void setDefault() {

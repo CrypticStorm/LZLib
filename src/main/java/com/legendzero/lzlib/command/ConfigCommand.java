@@ -26,8 +26,8 @@ import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.config.ConfigHandler;
 import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
+import com.legendzero.lzlib.lang.LZLibLang;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -53,36 +53,33 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
         Class<? extends Config> configClass;
         switch (args.size()) {
             case 0:
-                sender.sendMessage(ChatColor.YELLOW + "Loaded config files:");
+                LZLibLang.CONFIG_FILE_LIST_HEADER.send(sender);
                 for (String identifier : configHandler.getIdentifiers()) {
-                    sender.sendMessage(ChatColor.GRAY + "- " + identifier);
+                    LZLibLang.CONFIG_FILE_LIST_ITEM.send(sender, identifier);
                 }
                 break;
             case 1:
                 configClass = configHandler.getConfigClass(args.get(0));
                 if (configClass == null) {
-                    sender.sendMessage(ChatColor.RED + "Invalid config file");
+                    LZLibLang.CONFIG_INVALID.send(sender);
                 } else {
-                    sender.sendMessage(ChatColor.YELLOW + "Configurable data:");
+                    LZLibLang.CONFIG_PATH_LIST_HEADER.send(sender);
                     for (Config config : configClass.getEnumConstants()) {
-                        sender.sendMessage(ChatColor.GRAY + "> " +
-                                ChatColor.RESET + config.getPath());
+                        LZLibLang.CONFIG_PATH_LIST_ITEM.send(sender, config.getPath());
                     }
                 }
                 break;
             case 2:
                 configClass = configHandler.getConfigClass(args.get(0));
                 if (configClass == null) {
-                    sender.sendMessage(ChatColor.RED + "Invalid config file");
+                    LZLibLang.CONFIG_INVALID.send(sender);
                 } else {
                     for (Config config : configClass.getEnumConstants()) {
                         if (args.get(1).equalsIgnoreCase(config.getPath())) {
                             Object value = config.get();
-                            sender.sendMessage(config.getPath() +
-                                    ChatColor.GRAY + " > " +
-                                    ChatColor.RESET + value +
-                                    ChatColor.GRAY + " (" +
-                                    value.getClass().getName() + ")");
+                            LZLibLang.CONFIG_PATH_VALUE.send(sender,
+                                    config.getPath(), value,
+                                    value.getClass().getName());
                             break;
                         }
                     }
@@ -91,7 +88,7 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
             default:
                 configClass = configHandler.getConfigClass(args.get(0));
                 if (configClass == null) {
-                    sender.sendMessage(ChatColor.RED + "Invalid config file");
+                    LZLibLang.CONFIG_INVALID.send(sender);
                 } else {
                     for (Config config : configClass.getEnumConstants()) {
                         if (args.get(1).equalsIgnoreCase(config.getPath())) {
@@ -105,11 +102,9 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
                             } catch (ParseException e) {
                             }
                             config.set(value);
-                            sender.sendMessage(config.getPath() +
-                                    ChatColor.GRAY + " > " +
-                                    ChatColor.RESET + value +
-                                    ChatColor.GRAY + " (" +
-                                    value.getClass().getName() + ")");
+                            LZLibLang.CONFIG_PATH_VALUE.send(sender,
+                                    config.getPath(), value,
+                                    value.getClass().getName());
                             break;
                         }
                     }
