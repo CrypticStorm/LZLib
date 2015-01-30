@@ -22,30 +22,62 @@
 
 package com.legendzero.lzlib;
 
+import com.legendzero.lzlib.command.Command;
 import com.legendzero.lzlib.command.CommandHandler;
+import com.legendzero.lzlib.config.Config;
+import com.legendzero.lzlib.config.ConfigHandler;
 import com.legendzero.lzlib.interfaces.Commandable;
+import com.legendzero.lzlib.interfaces.Configurable;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E> {
+public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E> {
 
     protected CommandHandler<E> commandHandler;
+    protected ConfigHandler<E> configHandler;
 
     @Override
     public void onLoad() {
-        this.getLogger().info("Loading custom configuration objects");
+        this.getLogger().info("Loading configuration serializables");
+        for (Class<? extends ConfigurationSerializable> clazz :
+                this.getSerializableClasses()) {
+            ConfigurationSerialization.registerClass(clazz);
+        }
     }
 
     @Override
     public void onEnable() {
         this.getLogger().info("Loading configuration");
+        this.configHandler = new ConfigHandler<>((E) this);
+        for (Class<? extends Config> clazz : this.getConfigClasses()) {
+            this.configHandler.register(clazz);
+        }
 
         this.getLogger().info("Loading command system");
-        this.commandHandler = new CommandHandler<E>((E) this);
-
-        this.getLogger().info("Adding configuration commands");
+        this.commandHandler = new CommandHandler<>((E) this);
+        for (Command<E> command : this.getRootCommands()) {
+            this.commandHandler.register(command);
+        }
     }
 
     @Override
     public void onDisable() {
     }
+
+    @Override
+    public CommandHandler<E> getCommandHandler() {
+        return this.commandHandler;
+    }
+
+    @Override
+    public ConfigHandler<E> getConfigHandler() {
+        return this.configHandler;
+    }
+
+    public abstract Class<? extends ConfigurationSerializable>[] getSerializableClasses();
+
+    public abstract Class<? extends Config>[] getConfigClasses();
+
+    public abstract Command<E>[] getRootCommands();
 }

@@ -30,17 +30,36 @@ import java.io.IOException;
 
 public class YamlData implements FileData {
 
-    private final File file;
-    private final FileConfiguration data;
+    private String identifier;
+    private File file;
+    private FileConfiguration data;
 
-    public YamlData(File file) {
+    public YamlData(String identifier, File file) {
+        this.identifier = identifier;
         this.file = file;
         this.data = YamlConfiguration.loadConfiguration(file);
+    }
+
+
+    @Override
+    public String getIdentifier() {
+        return this.identifier;
+    }
+
+    @Override
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     @Override
     public File getFile() {
         return this.file;
+    }
+
+    @Override
+    public void setFile(File file) {
+        this.file = file;
+        this.data = YamlConfiguration.loadConfiguration(file);
     }
 
     @Override

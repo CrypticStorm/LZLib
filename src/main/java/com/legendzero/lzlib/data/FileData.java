@@ -25,9 +25,11 @@ package com.legendzero.lzlib.data;
 import java.io.File;
 import java.io.IOException;
 
-public interface FileData {
+public interface FileData extends Data {
 
     File getFile();
+
+    void setFile(File file);
 
     Object get(String path);
 

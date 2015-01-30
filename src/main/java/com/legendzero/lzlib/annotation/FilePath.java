@@ -20,12 +20,15 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib.interfaces;
+package com.legendzero.lzlib.annotation;
 
-import com.legendzero.lzlib.command.CommandHandler;
-import org.bukkit.plugin.java.JavaPlugin;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface Commandable<E extends JavaPlugin & Commandable<E>> {
-
-    CommandHandler<E> getCommandHandler();
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface FilePath {
+    String value();
 }

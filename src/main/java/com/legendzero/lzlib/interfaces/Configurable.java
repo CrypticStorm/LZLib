@@ -22,10 +22,10 @@
 
 package com.legendzero.lzlib.interfaces;
 
-import com.legendzero.lzlib.command.CommandHandler;
+import com.legendzero.lzlib.config.ConfigHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public interface Commandable<E extends JavaPlugin & Commandable<E>> {
+public interface Configurable<E extends JavaPlugin & Configurable<E>> {
 
-    CommandHandler<E> getCommandHandler();
+    ConfigHandler<E> getConfigHandler();
 }

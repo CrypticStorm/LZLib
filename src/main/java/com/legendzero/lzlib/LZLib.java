@@ -22,8 +22,24 @@
 
 package com.legendzero.lzlib;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import com.legendzero.lzlib.command.Command;
+import com.legendzero.lzlib.config.Config;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
-public class LZLib extends JavaPlugin {
+public class LZLib extends LZPlugin<LZLib> {
 
+    @Override
+    public Class<? extends ConfigurationSerializable>[] getSerializableClasses() {
+        return new Class[0];
+    }
+
+    @Override
+    public Class<? extends Config>[] getConfigClasses() {
+        return new Class[0];
+    }
+
+    @Override
+    public Command<LZLib>[] getRootCommands() {
+        return new Command[0];
+    }
 }

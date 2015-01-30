@@ -23,20 +23,31 @@
 package com.legendzero.lzlib.config;
 
 import com.legendzero.lzlib.data.FileData;
-import org.bukkit.configuration.file.FileConfiguration;
 
-public interface Config<E extends Enum<E> & Config<E>> extends FileData {
+public interface Config<E extends Enum<E> & Config<E>> {
+
+    FileData getFileData();
+
+    void setFileData(FileData data);
 
     String getPath();
 
     Object getDefault();
 
     default Object get() {
-        return this.get(this.getPath(), this.getDefault());
+        return this.getFileData().get(this.getPath(), this.getDefault());
     }
 
     default void set(Object value) {
-        this.set(this.getPath(), value);
+        this.getFileData().set(this.getPath(), value);
+    }
+
+    default void setDefault() {
+        this.set(this.getDefault());
+    }
+
+    default boolean isSet() {
+        return this.getFileData().isSet(this.getPath());
     }
 
     default <T> T as(Class<T> clazz) {
@@ -75,14 +86,6 @@ public interface Config<E extends Enum<E> & Config<E>> extends FileData {
             }
         } else {
             return null;
-        }
-    }
-
-    static void setDefaults(FileConfiguration file, Class<? extends Config> clazz) {
-        for (Config cv : clazz.getEnumConstants()) {
-            if (!file.isSet(cv.getPath())) {
-                file.set(cv.getPath(), cv.getDefault());
-            }
         }
     }
 }

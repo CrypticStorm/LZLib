@@ -20,12 +20,11 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib.interfaces;
+package com.legendzero.lzlib.data;
 
-import com.legendzero.lzlib.command.CommandHandler;
-import org.bukkit.plugin.java.JavaPlugin;
+public interface Data {
 
-public interface Commandable<E extends JavaPlugin & Commandable<E>> {
+    String getIdentifier();
 
-    CommandHandler<E> getCommandHandler();
+    void setIdentifier(String identifier);
 }
