@@ -28,12 +28,14 @@ import com.legendzero.lzlib.annotation.FilePath;
 import com.legendzero.lzlib.annotation.Identifier;
 import com.legendzero.lzlib.data.FileData;
 import com.legendzero.lzlib.data.YamlData;
+import com.legendzero.lzlib.lang.LZLibLang;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 
 public class ConfigHandler<E extends JavaPlugin> {
@@ -51,7 +53,7 @@ public class ConfigHandler<E extends JavaPlugin> {
             if (clazz.isAnnotationPresent(FilePath.class)) {
                 FilePath annotation = clazz.getAnnotation(FilePath.class);
                 String path = annotation.value();
-                path.replaceAll("[/\\\\]+",Matcher.quoteReplacement(
+                path = path.replaceAll("[/\\\\]+",Matcher.quoteReplacement(
                         System.getProperty("file.separator")));
 
                 File file = new File(this.plugin.getDataFolder(), path);
@@ -79,7 +81,7 @@ public class ConfigHandler<E extends JavaPlugin> {
                 this.configs.put(data.getIdentifier(), clazz);
             }
         } else {
-            this.plugin.getLogger().warning("Cannot initialize Config interface.");
+            LZLibLang.CONFIG_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING);
         }
     }
 

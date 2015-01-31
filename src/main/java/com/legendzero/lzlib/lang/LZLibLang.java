@@ -32,6 +32,7 @@ public enum LZLibLang implements Lang<LZLibLang> {
     LOAD_COMMANDS("load.commands", "Loading command system"),
 
     CONFIG_INVALID("config.invalid", RED + "Invalid config file"),
+    CONFIG_NOT_ENUM("config.notenum", RED + "Config class is not an enum."),
     CONFIG_FILE_LIST_HEADER("config.filelist.header", YELLOW + "Loaded config files:"),
     CONFIG_FILE_LIST_ITEM("config.filelist.item", GRAY + "> " + RESET + "%s"),
     CONFIG_PATH_LIST_HEADER("config.pathlist.header", YELLOW + "Configurable data:"),
@@ -43,7 +44,7 @@ public enum LZLibLang implements Lang<LZLibLang> {
     ;
 
     private final String path;
-    private String def;
+    private final String def;
     private FileData data;
 
     private LZLibLang(String path, String def) {
