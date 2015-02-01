@@ -38,7 +38,7 @@ public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements Ta
 
     private final E plugin;
     private final CommandReflector reflector;
-    private final Map<String, Command<E>> registeredCommands;
+    private final Map<String, LZCommand<E>> registeredCommands;
     private final Map<String, org.bukkit.command.Command> bukkitCommands;
 
     public CommandHandler(E plugin) {
@@ -48,7 +48,7 @@ public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements Ta
         this.bukkitCommands = Maps.newHashMap();
     }
 
-    public void register(Command<E> command) {
+    public void register(LZCommand<E> command) {
         PluginCommand pluginCommand = this.reflector.createBukkitCommand(command);
         if (command != null && this.reflector.getCommandMap().register(this.plugin.getName(), pluginCommand)) {
             pluginCommand.setExecutor(this);
@@ -58,7 +58,7 @@ public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements Ta
         }
     }
 
-    public Collection<Command<E>> getRootCommands() {
+    public Collection<LZCommand<E>> getRootCommands() {
         return this.registeredCommands.values();
     }
 

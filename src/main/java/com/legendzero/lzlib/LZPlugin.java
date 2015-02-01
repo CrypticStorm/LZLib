@@ -22,7 +22,7 @@
 
 package com.legendzero.lzlib;
 
-import com.legendzero.lzlib.command.Command;
+import com.legendzero.lzlib.command.LZCommand;
 import com.legendzero.lzlib.command.CommandHandler;
 import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.config.ConfigHandler;
@@ -59,7 +59,7 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
 
         LZLibLang.LOAD_COMMANDS.log(this.getLogger(), Level.INFO);
         this.commandHandler = new CommandHandler<>((E) this);
-        for (Command<E> command : this.getRootCommands()) {
+        for (LZCommand<E> command : this.getRootCommands()) {
             this.commandHandler.register(command);
         }
     }
@@ -82,5 +82,5 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
 
     public abstract Class<? extends Config>[] getConfigClasses();
 
-    public abstract Command<E>[] getRootCommands();
+    public abstract LZCommand<E>[] getRootCommands();
 }

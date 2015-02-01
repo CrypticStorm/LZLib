@@ -22,7 +22,7 @@
 
 package com.legendzero.lzlib;
 
-import com.legendzero.lzlib.command.Command;
+import com.legendzero.lzlib.command.LZCommand;
 import com.legendzero.lzlib.config.Config;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
@@ -39,7 +39,7 @@ public class LZLib extends LZPlugin<LZLib> {
     }
 
     @Override
-    public Command<LZLib>[] getRootCommands() {
-        return new Command[0];
+    public LZCommand<LZLib>[] getRootCommands() {
+        return new LZCommand[0];
     }
 }

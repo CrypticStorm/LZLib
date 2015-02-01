@@ -37,19 +37,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Command<E extends JavaPlugin & Commandable<E>> implements Comparable<Command> {
+public abstract class LZCommand<E extends JavaPlugin & Commandable<E>> implements Comparable<LZCommand> {
 
     private final E plugin;
-    private final Command<E> parent;
+    private final LZCommand<E> parent;
     private final String name;
     private final String fullName;
     private final String description;
     private final String usage;
     private final String[] aliases;
     private final Permission permission;
-    private final Map<String, Command> subCommandMap;
+    private final Map<String, LZCommand> subCommandMap;
 
-    public Command(E plugin, Command<E> parent, String name, String description, String usage, String[] aliases, PermissionDefault permissionDefault) {
+    public LZCommand(E plugin, LZCommand<E> parent, String name, String description, String usage, String[] aliases, PermissionDefault permissionDefault) {
         this.plugin = plugin;
         this.parent = parent;
         this.name = name;
@@ -68,21 +68,21 @@ public abstract class Command<E extends JavaPlugin & Commandable<E>> implements 
     }
 
     @Override
-    public int compareTo(Command other) {
+    public int compareTo(LZCommand other) {
         return this.name.compareTo(other.name);
     }
 
-    public void addSubCommand(Command command) {
+    public void addSubCommand(LZCommand command) {
         this.registerAlias(command.getName(), command);
         Arrays.stream(command.getAliases()).forEach(alias -> registerAlias(alias, command));
     }
 
-    private void registerAlias(String alias, Command command) {
+    private void registerAlias(String alias, LZCommand command) {
         this.subCommandMap.putIfAbsent(alias, command);
     }
 
-    public Command getSubCommand(Permissible permissible, String alias) {
-        Command command = this.subCommandMap.get(alias.toLowerCase());
+    public LZCommand getSubCommand(Permissible permissible, String alias) {
+        LZCommand command = this.subCommandMap.get(alias.toLowerCase());
         if (permissible == null) {
             return command;
         } else {
@@ -125,7 +125,7 @@ public abstract class Command<E extends JavaPlugin & Commandable<E>> implements 
         return Lists.newArrayList();
     }
 
-    public final Command getParent() {
+    public final LZCommand getParent() {
         return this.parent;
     }
 
@@ -157,11 +157,11 @@ public abstract class Command<E extends JavaPlugin & Commandable<E>> implements 
         return this.permission;
     }
 
-    public final Collection<Command> getSubCommands() {
+    public final Collection<LZCommand> getSubCommands() {
         return ImmutableSet.copyOf(this.subCommandMap.values());
     }
 
-    public final Collection<Command> getPermissibleSubCommands(Permissible permissible) {
+    public final Collection<LZCommand> getPermissibleSubCommands(Permissible permissible) {
         return ImmutableSet.copyOf(this.subCommandMap.values().stream().filter(cmd -> permissible.hasPermission(cmd.permission)).iterator());
     }
 

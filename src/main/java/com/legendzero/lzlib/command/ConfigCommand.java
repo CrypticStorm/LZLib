@@ -36,9 +36,9 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
 
-public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<E>> extends Command<E> {
+public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<E>> extends LZCommand<E> {
 
-    public ConfigCommand(E plugin, Command<E> parent, String name, String[] aliases, ConfigHandler<E> configHandler) {
+    public ConfigCommand(E plugin, LZCommand<E> parent, String name, String[] aliases, ConfigHandler<E> configHandler) {
         super(plugin, parent,
                 name,
                 "Edit config values for " + plugin.getName(),

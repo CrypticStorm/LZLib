@@ -36,7 +36,7 @@ public class CommandReflector {
 
     private final Constructor<PluginCommand> constructor;
     private final CommandMap commandMap;
-    private final Map<String, Command> aliasMap;
+    private final Map<String, LZCommand> aliasMap;
 
     public CommandReflector(Plugin plugin) {
         this.constructor = this.getConstructor();
@@ -48,11 +48,11 @@ public class CommandReflector {
         return this.commandMap;
     }
 
-    public Map<String, Command> getAliasMap() {
+    public Map<String, LZCommand> getAliasMap() {
         return this.aliasMap;
     }
 
-    public PluginCommand createBukkitCommand(Command command) {
+    public PluginCommand createBukkitCommand(LZCommand command) {
         PluginCommand pluginCommand = this.createCommand(command);
         if (pluginCommand == null) {
             return null;
@@ -65,7 +65,7 @@ public class CommandReflector {
         return pluginCommand;
     }
 
-    private PluginCommand createCommand(Command command) {
+    private PluginCommand createCommand(LZCommand command) {
         PluginCommand pluginCommand = null;
 
         try {
@@ -101,14 +101,14 @@ public class CommandReflector {
         return cMap;
     }
 
-    private Map<String, Command> findAliasMap() {
-        Map<String, Command> map = null;
+    private Map<String, LZCommand> findAliasMap() {
+        Map<String, LZCommand> map = null;
 
         try {
             Field f = this.commandMap.getClass().getDeclaredField("knownCommands");
             f.setAccessible(true);
 
-            map = (Map<String, Command>) f.get(this.commandMap);
+            map = (Map<String, LZCommand>) f.get(this.commandMap);
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
         }
 

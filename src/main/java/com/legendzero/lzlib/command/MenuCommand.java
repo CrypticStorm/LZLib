@@ -29,9 +29,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 
-public class MenuCommand<E extends JavaPlugin & Commandable<E>> extends Command<E> {
+public class MenuCommand<E extends JavaPlugin & Commandable<E>> extends LZCommand<E> {
 
-    public MenuCommand(E plugin, Command<E> parent, String name, String description, String usage, String[] aliases, PermissionDefault permissionDefault) {
+    public MenuCommand(E plugin, LZCommand<E> parent, String name, String description, String usage, String[] aliases, PermissionDefault permissionDefault) {
         super(plugin, parent, name, description, usage, aliases, permissionDefault);
     }
 
