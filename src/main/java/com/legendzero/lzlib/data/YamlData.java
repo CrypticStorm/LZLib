@@ -22,7 +22,6 @@
 
 package com.legendzero.lzlib.data;
 
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -32,7 +31,7 @@ public class YamlData implements FileData {
 
     private String identifier;
     private File file;
-    private FileConfiguration data;
+    private YamlConfiguration data;
 
     public YamlData(String identifier, File file) {
         this.identifier = identifier;
@@ -40,6 +39,16 @@ public class YamlData implements FileData {
         this.data = YamlConfiguration.loadConfiguration(file);
     }
 
+    @Override
+    public File getStorage() {
+        return this.file;
+    }
+
+    @Override
+    public void setStorage(File storage) {
+        this.file = storage;
+        this.data = YamlConfiguration.loadConfiguration(storage);
+    }
 
     @Override
     public String getIdentifier() {
@@ -49,17 +58,6 @@ public class YamlData implements FileData {
     @Override
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
-    }
-
-    @Override
-    public File getFile() {
-        return this.file;
-    }
-
-    @Override
-    public void setFile(File file) {
-        this.file = file;
-        this.data = YamlConfiguration.loadConfiguration(file);
     }
 
     @Override
@@ -83,16 +81,21 @@ public class YamlData implements FileData {
     }
 
     @Override
-    public void save() throws IOException {
-        this.save(this.file);
+    public boolean save() {
+        return this.save(this.file);
     }
 
     @Override
-    public void save(File target) throws IOException {
-        this.data.save(file);
+    public boolean save(File target)  {
+        try {
+            this.data.save(file);
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
-    public FileConfiguration getData() {
+    public YamlConfiguration getData() {
         return this.data;
     }
 }

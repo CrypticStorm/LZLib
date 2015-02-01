@@ -22,9 +22,17 @@
 
 package com.legendzero.lzlib.data;
 
-public interface Data {
+public interface Data<T> {
+
+    T getStorage();
+
+    void setStorage(T storage);
 
     String getIdentifier();
 
     void setIdentifier(String identifier);
+
+    boolean save();
+
+    boolean save(T storage);
 }

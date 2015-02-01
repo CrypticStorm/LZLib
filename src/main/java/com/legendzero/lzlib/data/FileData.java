@@ -23,13 +23,8 @@
 package com.legendzero.lzlib.data;
 
 import java.io.File;
-import java.io.IOException;
 
-public interface FileData extends Data {
-
-    File getFile();
-
-    void setFile(File file);
+public interface FileData extends Data<File> {
 
     Object get(String path);
 
@@ -38,8 +33,4 @@ public interface FileData extends Data {
     boolean isSet(String path);
 
     void set(String path, Object value);
-
-    void save() throws IOException;
-
-    void save(File target) throws IOException;
 }
