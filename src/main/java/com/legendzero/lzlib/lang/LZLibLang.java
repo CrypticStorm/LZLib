@@ -25,7 +25,7 @@ package com.legendzero.lzlib.lang;
 import com.legendzero.lzlib.data.FileData;
 import static org.bukkit.ChatColor.*;
 
-public enum LZLibLang implements Lang<LZLibLang> {
+public enum LZLibLang implements Lang {
 
     LOAD_SERIALIZABLES("load.serializables", "Loading configuration serializables"),
     LOAD_CONFIGURATION("load.configuration", "Loading configuration"),

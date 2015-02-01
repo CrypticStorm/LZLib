@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public interface Lang<E extends Enum<E> & Lang<E>> extends Config<E> {
+public interface Lang extends Config {
 
     String getDefault();
 

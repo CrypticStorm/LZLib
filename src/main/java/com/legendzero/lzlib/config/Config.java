@@ -23,8 +23,9 @@
 package com.legendzero.lzlib.config;
 
 import com.legendzero.lzlib.data.FileData;
+import org.apache.commons.lang.ClassUtils;
 
-public interface Config<E extends Enum<E> & Config<E>> {
+public interface Config {
 
     FileData getFileData();
 
@@ -68,24 +69,24 @@ public interface Config<E extends Enum<E> & Config<E>> {
             } else {
                 throw new ClassCastException();
             }
-        } else if (clazz.isPrimitive()) {
-            if (clazz.equals(boolean.class)) {
+        } else if (clazz.isPrimitive() || ClassUtils.wrapperToPrimitive(clazz) != null) {
+            if (clazz.equals(boolean.class) || clazz.equals(Boolean.class)) {
                 return clazz.cast(false);
-            } else if (clazz.equals(byte.class)) {
+            } else if (clazz.equals(byte.class) || clazz.equals(Byte.class)) {
                 return clazz.cast((byte) -1);
-            } else if (clazz.equals(char.class)) {
+            } else if (clazz.equals(char.class) || clazz.equals(Character.class)) {
                 return clazz.cast((char) -1);
-            } else if (clazz.equals(double.class)) {
+            } else if (clazz.equals(double.class) || clazz.equals(Double.class)) {
                 return clazz.cast(-1D);
-            } else if (clazz.equals(float.class)) {
+            } else if (clazz.equals(float.class) || clazz.equals(Float.class)) {
                 return clazz.cast(-1F);
-            } else if (clazz.equals(int.class)) {
+            } else if (clazz.equals(int.class) || clazz.equals(Integer.class)) {
                 return clazz.cast(-1);
-            } else if (clazz.equals(long.class)) {
+            } else if (clazz.equals(long.class) || clazz.equals(Long.class)) {
                 return clazz.cast(-1L);
-            } else if (clazz.equals(short.class)) {
+            } else if (clazz.equals(short.class) || clazz.equals(Short.class)) {
                 return clazz.cast((short) -1);
-            } else if (clazz.equals(void.class)) {
+            } else if (clazz.equals(void.class) || clazz.equals(Void.class)) {
                 throw new IllegalArgumentException("Can not cast to void");
             } else {
                 throw new IllegalArgumentException("Invalid primitive: " + clazz.getName());
