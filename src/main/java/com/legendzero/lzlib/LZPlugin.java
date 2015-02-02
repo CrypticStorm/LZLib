@@ -28,17 +28,20 @@ import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.config.ConfigHandler;
 import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
+import com.legendzero.lzlib.interfaces.Listenable;
 import com.legendzero.lzlib.lang.LZLibLang;
+import com.legendzero.lzlib.listener.ListenerHandler;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E> {
+public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E>, Listenable<E> {
 
     protected CommandHandler<E> commandHandler;
     protected ConfigHandler<E> configHandler;
+    protected ListenerHandler<E> listenerHandler;
 
     @Override
     public void onLoad() {
@@ -47,6 +50,7 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
                 this.getSerializableClasses()) {
             ConfigurationSerialization.registerClass(clazz);
         }
+        this.listenerHandler = new ListenerHandler<>((E) this);
     }
 
     @Override
@@ -66,6 +70,9 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
 
     @Override
     public void onDisable() {
+        this.listenerHandler.unregisterAll();
+        this.commandHandler.unregisterAll();
+        this.configHandler.unregisterAll();
     }
 
     @Override
@@ -76,6 +83,11 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
     @Override
     public ConfigHandler<E> getConfigHandler() {
         return this.configHandler;
+    }
+    
+    @Override
+    public ListenerHandler<E> getListenerHandler() {
+        return this.listenerHandler;
     }
 
     public abstract Class<? extends ConfigurationSerializable>[] getSerializableClasses();

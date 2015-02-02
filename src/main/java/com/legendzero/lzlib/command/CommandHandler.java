@@ -25,6 +25,8 @@ package com.legendzero.lzlib.command;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.legendzero.lzlib.interfaces.Commandable;
+import com.legendzero.lzlib.interfaces.LZHandler;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
@@ -34,31 +36,55 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements TabExecutor {
+public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements LZHandler<LZCommand<E>>, TabExecutor {
 
     private final E plugin;
     private final CommandReflector reflector;
     private final Map<String, LZCommand<E>> registeredCommands;
-    private final Map<String, org.bukkit.command.Command> bukkitCommands;
+    private final Map<String, LZCommand<E>> registeredAliases;
+    private final Map<String, Command> bukkitCommands;
 
     public CommandHandler(E plugin) {
         this.plugin = plugin;
         this.reflector = new CommandReflector(this.plugin);
         this.registeredCommands = Maps.newHashMap();
+        this.registeredAliases = Maps.newHashMap();
         this.bukkitCommands = Maps.newHashMap();
     }
 
-    public void register(LZCommand<E> command) {
-        PluginCommand pluginCommand = this.reflector.createBukkitCommand(command);
-        if (command != null && this.reflector.getCommandMap().register(this.plugin.getName(), pluginCommand)) {
+    @Override
+    public void register(LZCommand<E> registrant) {
+        PluginCommand pluginCommand = this.reflector.createBukkitCommand(registrant);
+        if (registrant != null && this.reflector.getCommandMap().register(this.plugin.getName(), pluginCommand)) {
             pluginCommand.setExecutor(this);
             pluginCommand.setExecutor(this);
-            this.registeredCommands.put(pluginCommand.getName(), command);
+            this.registeredCommands.put(pluginCommand.getName(), registrant);
+            for (String alias : pluginCommand.getAliases()) {
+                this.registeredAliases.putIfAbsent(alias, registrant);
+            }
             this.bukkitCommands.put(pluginCommand.getName(), pluginCommand);
         }
     }
 
-    public Collection<LZCommand<E>> getRootCommands() {
+    @Override
+    public void unregister(LZCommand<E> registrant) {
+        if (this.registeredCommands.remove(registrant.getName(), registrant)) {
+            for (String alias : registrant.getAliases()) {
+                this.registeredAliases.remove(alias, registrant);
+            }
+            this.bukkitCommands.remove(registrant.getName());
+        }
+    }
+
+    @Override
+    public void unregisterAll() {
+        this.registeredCommands.clear();
+        this.registeredAliases.clear();
+        this.bukkitCommands.clear();
+    }
+
+    @Override
+    public Collection<LZCommand<E>> getRegistered() {
         return this.registeredCommands.values();
     }
 

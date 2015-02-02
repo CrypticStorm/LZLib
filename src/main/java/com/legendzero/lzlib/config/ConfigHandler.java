@@ -28,17 +28,18 @@ import com.legendzero.lzlib.annotation.FilePath;
 import com.legendzero.lzlib.annotation.Identifier;
 import com.legendzero.lzlib.data.FileData;
 import com.legendzero.lzlib.data.YamlData;
+import com.legendzero.lzlib.interfaces.LZHandler;
 import com.legendzero.lzlib.lang.LZLibLang;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
 
-public class ConfigHandler<E extends JavaPlugin> {
+public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? extends Config>> {
 
     private final E plugin;
     private final Map<String, Class<? extends Config>> configs;
@@ -48,13 +49,10 @@ public class ConfigHandler<E extends JavaPlugin> {
         this.configs = Maps.newHashMap();
     }
 
-    public void register(Class<? extends Config> clazz) {
-        if (clazz.isEnum()) {
-            if (clazz.isAnnotationPresent(FilePath.class)) {
-                FilePath annotation = clazz.getAnnotation(FilePath.class);
-                String path = annotation.value();
-                path = path.replaceAll("[/\\\\]+",Matcher.quoteReplacement(
-                        System.getProperty("file.separator")));
+    public void register(Class<? extends Config> registrant) {
+        if (registrant.isEnum()) {
+            if (registrant.isAnnotationPresent(FilePath.class)) {
+                String path = Config.getIdentifier(registrant);
 
                 File file = new File(this.plugin.getDataFolder(), path);
                 if (!file.exists()) {
@@ -67,22 +65,37 @@ public class ConfigHandler<E extends JavaPlugin> {
                 }
 
                 String identifier = file.getName();
-                if (clazz.isAnnotationPresent(Identifier.class)) {
-                    identifier = clazz.getAnnotation(Identifier.class).value();
+                if (registrant.isAnnotationPresent(Identifier.class)) {
+                    identifier = registrant.getAnnotation(Identifier.class).value();
                 }
                 FileData data = new YamlData(identifier, file);
-                for (Config config : clazz.getEnumConstants()) {
+                for (Config config : registrant.getEnumConstants()) {
                     config.setFileData(data);
                     if (!config.isSet()) {
                         config.setDefault();
                     }
                 }
 
-                this.configs.put(data.getIdentifier(), clazz);
+                this.configs.put(data.getIdentifier(), registrant);
             }
         } else {
             LZLibLang.CONFIG_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING);
         }
+    }
+
+    @Override
+    public void unregister(Class<? extends Config> registrant) {
+        this.configs.remove(Config.getIdentifier(registrant), registrant);
+    }
+
+    @Override
+    public void unregisterAll() {
+        this.configs.clear();
+    }
+
+    @Override
+    public Collection<Class<? extends Config>> getRegistered() {
+        return this.configs.values();
     }
 
     public Set<String> getIdentifiers() {

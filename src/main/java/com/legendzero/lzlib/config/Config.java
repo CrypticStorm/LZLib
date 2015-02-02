@@ -22,8 +22,12 @@
 
 package com.legendzero.lzlib.config;
 
+import com.legendzero.lzlib.annotation.FilePath;
 import com.legendzero.lzlib.data.FileData;
 import org.apache.commons.lang.ClassUtils;
+
+import java.lang.reflect.AnnotatedElement;
+import java.util.regex.Matcher;
 
 public interface Config {
 
@@ -94,5 +98,11 @@ public interface Config {
         } else {
             return null;
         }
+    }
+    
+    static String getIdentifier(AnnotatedElement element) {
+        FilePath annotation = element.getAnnotation(FilePath.class);
+        return annotation.value().replaceAll("[/\\\\]+",
+                Matcher.quoteReplacement(System.getProperty("file.separator")));
     }
 }
