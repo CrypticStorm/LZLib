@@ -42,11 +42,11 @@ import java.util.logging.Level;
 public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? extends Config>> {
 
     private final E plugin;
-    private final Map<String, Class<? extends Config>> configs;
+    private final Map<String, Class<? extends Config>> configClasses;
 
     public ConfigHandler(E plugin) {
         this.plugin = plugin;
-        this.configs = Maps.newHashMap();
+        this.configClasses = Maps.newHashMap();
     }
 
     public void register(Class<? extends Config> registrant) {
@@ -76,7 +76,7 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
                     }
                 }
 
-                this.configs.put(data.getIdentifier(), registrant);
+                this.configClasses.put(data.getIdentifier(), registrant);
             }
         } else {
             LZLibLang.CONFIG_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING);
@@ -85,24 +85,24 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
 
     @Override
     public void unregister(Class<? extends Config> registrant) {
-        this.configs.remove(Config.getIdentifier(registrant), registrant);
+        this.configClasses.remove(Config.getIdentifier(registrant), registrant);
     }
 
     @Override
     public void unregisterAll() {
-        this.configs.clear();
+        this.configClasses.clear();
     }
 
     @Override
     public Collection<Class<? extends Config>> getRegistered() {
-        return this.configs.values();
+        return this.configClasses.values();
     }
 
     public Set<String> getIdentifiers() {
-        return ImmutableSet.copyOf(this.configs.keySet());
+        return ImmutableSet.copyOf(this.configClasses.keySet());
     }
 
     public Class<? extends Config> getConfigClass(String identifier) {
-        return this.configs.get(identifier);
+        return this.configClasses.get(identifier);
     }
 }
