@@ -53,12 +53,12 @@ public enum LZLibLang implements Lang {
     }
 
     @Override
-    public FileData getFileData() {
+    public FileData getData() {
         return this.data;
     }
 
     @Override
-    public void setFileData(FileData data) {
+    public void setData(FileData data) {
         this.data = data;
     }
 

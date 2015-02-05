@@ -23,43 +23,31 @@
 package com.legendzero.lzlib.config;
 
 import com.legendzero.lzlib.annotation.FilePath;
-import com.legendzero.lzlib.data.FileData;
+import com.legendzero.lzlib.data.Data;
 import org.apache.commons.lang.ClassUtils;
 
 import java.lang.reflect.AnnotatedElement;
 import java.util.regex.Matcher;
 
-public interface Config {
+public interface Config<E extends Data> {
 
-    FileData getFileData();
-
-    void setFileData(FileData data);
-
+    E getData();
+    
+    void setData(E data);
+    
     String getPath();
 
     Object getDefault();
 
-    default Object get() {
-        if (this.getFileData() != null) {
-            return this.getFileData().get(this.getPath(), this.getDefault());
-        } else {
-            return this.getDefault();
-        }
-    }
+    Object get();
 
-    default void set(Object value) {
-        if (this.getFileData() != null) {
-            this.getFileData().set(this.getPath(), value);
-        }
-    }
+    void set(Object value);
 
     default void setDefault() {
         this.set(this.getDefault());
     }
 
-    default boolean isSet() {
-        return this.getFileData().isSet(this.getPath());
-    }
+    boolean isSet();
 
     default <T> T as(Class<T> clazz) {
         Object value = this.get();

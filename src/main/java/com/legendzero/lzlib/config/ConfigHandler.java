@@ -51,32 +51,36 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
 
     public void register(Class<? extends Config> registrant) {
         if (registrant.isEnum()) {
-            if (registrant.isAnnotationPresent(FilePath.class)) {
-                String path = Config.getIdentifier(registrant);
+            if (FileConfig.class.isAssignableFrom(registrant)) {
+                if (registrant.isAnnotationPresent(FilePath.class)) {
+                    String path = Config.getIdentifier(registrant);
 
-                File file = new File(this.plugin.getDataFolder(), path);
-                if (!file.exists()) {
-                    file.mkdirs();
-                    try {
-                        file.createNewFile();
-                    } catch (IOException e) {
-                        this.plugin.getLogger().warning("Could not create config file");
+                    File file = new File(this.plugin.getDataFolder(), path);
+                    if (!file.exists()) {
+                        file.mkdirs();
+                        try {
+                            file.createNewFile();
+                        } catch (IOException e) {
+                            this.plugin.getLogger().warning("Could not create config file");
+                        }
                     }
-                }
 
-                String identifier = file.getName();
-                if (registrant.isAnnotationPresent(Identifier.class)) {
-                    identifier = registrant.getAnnotation(Identifier.class).value();
-                }
-                FileData data = new YamlData(identifier, file);
-                for (Config config : registrant.getEnumConstants()) {
-                    config.setFileData(data);
-                    if (!config.isSet()) {
-                        config.setDefault();
+                    String identifier = file.getName();
+                    if (registrant.isAnnotationPresent(Identifier.class)) {
+                        identifier = registrant.getAnnotation(Identifier.class).value();
                     }
-                }
+                    FileData data = new YamlData(identifier, file);
+                    for (Config config : registrant.getEnumConstants()) {
+                        config.setData(data);
+                        if (!config.isSet()) {
+                            config.setDefault();
+                        }
+                    }
 
-                this.configClasses.put(data.getIdentifier(), registrant);
+                    this.configClasses.put(data.getIdentifier(), registrant);
+                }
+            } else {
+                //TODO: Add Lang for non FileConfig
             }
         } else {
             LZLibLang.CONFIG_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING);

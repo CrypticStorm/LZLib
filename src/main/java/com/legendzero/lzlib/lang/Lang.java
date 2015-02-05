@@ -22,7 +22,7 @@
 
 package com.legendzero.lzlib.lang;
 
-import com.legendzero.lzlib.config.Config;
+import com.legendzero.lzlib.config.FileConfig;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -30,12 +30,12 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public interface Lang extends Config {
+public interface Lang extends FileConfig {
 
     String getDefault();
 
     default String get() {
-        return Config.super.get().toString();
+        return FileConfig.super.get().toString();
     }
 
     default String simpleFormat(Object... args) {
