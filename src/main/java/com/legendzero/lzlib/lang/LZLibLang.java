@@ -31,8 +31,10 @@ public enum LZLibLang implements Lang {
     LOAD_CONFIGURATION("load.configuration", "Loading configuration"),
     LOAD_COMMANDS("load.commands", "Loading command system"),
 
-    CONFIG_INVALID("config.invalid", RED + "Invalid config file"),
-    CONFIG_NOT_ENUM("config.notenum", RED + "Config class is not an enum."),
+    CONFIG_ERROR_NOT_FOUND("config.error.notfound", RED + "Invalid config file"),
+    CONFIG_ERROR_NOT_ENUM("config.error.notenum", RED + "%s is not an enum."),
+    CONFIG_ERROR_NOT_ANNOTATED("config.error.notenum", RED + "%s has no FilePath annotation."),
+
     CONFIG_FILE_LIST_HEADER("config.filelist.header", YELLOW + "Loaded config files:"),
     CONFIG_FILE_LIST_ITEM("config.filelist.item", GRAY + "> " + RESET + "%s"),
     CONFIG_PATH_LIST_HEADER("config.pathlist.header", YELLOW + "Configurable data:"),

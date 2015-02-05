@@ -88,7 +88,7 @@ public interface Config<E extends Data> {
         }
     }
     
-    static String getIdentifier(AnnotatedElement element) {
+    static String getPath(AnnotatedElement element) {
         FilePath annotation = element.getAnnotation(FilePath.class);
         return annotation.value().replaceAll("[/\\\\]+",
                 Matcher.quoteReplacement(System.getProperty("file.separator")));
