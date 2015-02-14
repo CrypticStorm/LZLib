@@ -40,12 +40,5 @@
 
     <build>
         <finalName>${project.name}</finalName>
-        <resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <directory>${basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
 </project>

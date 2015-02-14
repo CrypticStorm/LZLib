@@ -20,26 +20,13 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib;
+package com.legendzero.lzlib.gui;
 
-import com.legendzero.lzlib.command.LZCommand;
-import com.legendzero.lzlib.config.Config;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.ItemStack;
 
-public class LZLib extends LZPlugin<LZLib> {
-
-    @Override
-    public Class<? extends ConfigurationSerializable>[] getSerializableClasses() {
-        return new Class[0];
-    }
-
-    @Override
-    public Class<? extends Config>[] getConfigClasses() {
-        return new Class[0];
-    }
-
-    @Override
-    public LZCommand<LZLib>[] getRootCommands() {
-        return new LZCommand[0];
-    }
+public interface GuiItem {
+    
+    public ItemStack getItemStack();
+    
+    public GuiHandler getGuiHandler();
 }
