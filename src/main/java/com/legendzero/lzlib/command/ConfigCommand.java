@@ -61,7 +61,7 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
             case 1:
                 configClass = configHandler.getConfigClass(args.get(0));
                 if (configClass == null) {
-                    LZLibLang.CONFIG_INVALID.send(sender);
+                    LZLibLang.CONFIG_ERROR_NOT_FOUND.send(sender);
                 } else {
                     LZLibLang.CONFIG_PATH_LIST_HEADER.send(sender);
                     for (Config config : configClass.getEnumConstants()) {
@@ -72,7 +72,7 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
             case 2:
                 configClass = configHandler.getConfigClass(args.get(0));
                 if (configClass == null) {
-                    LZLibLang.CONFIG_INVALID.send(sender);
+                    LZLibLang.CONFIG_ERROR_NOT_FOUND.send(sender);
                 } else {
                     for (Config config : configClass.getEnumConstants()) {
                         if (args.get(1).equalsIgnoreCase(config.getPath())) {
@@ -88,7 +88,7 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
             default:
                 configClass = configHandler.getConfigClass(args.get(0));
                 if (configClass == null) {
-                    LZLibLang.CONFIG_INVALID.send(sender);
+                    LZLibLang.CONFIG_ERROR_NOT_FOUND.send(sender);
                 } else {
                     for (Config config : configClass.getEnumConstants()) {
                         if (args.get(1).equalsIgnoreCase(config.getPath())) {

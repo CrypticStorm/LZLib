@@ -39,57 +39,55 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? extends Config>> {
+public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? extends FileConfig>> {
 
     private final E plugin;
-    private final Map<String, Class<? extends Config>> configClasses;
+    private final Map<String, Class<? extends FileConfig>> configClasses;
 
     public ConfigHandler(E plugin) {
         this.plugin = plugin;
         this.configClasses = Maps.newHashMap();
     }
 
-    public void register(Class<? extends Config> registrant) {
+    public void register(Class<? extends FileConfig> registrant) {
         if (registrant.isEnum()) {
-            if (FileConfig.class.isAssignableFrom(registrant)) {
-                if (registrant.isAnnotationPresent(FilePath.class)) {
-                    String path = Config.getIdentifier(registrant);
+            if (registrant.isAnnotationPresent(FilePath.class)) {
+                String path = Config.getPath(registrant);
 
-                    File file = new File(this.plugin.getDataFolder(), path);
-                    if (!file.exists()) {
-                        file.mkdirs();
-                        try {
-                            file.createNewFile();
-                        } catch (IOException e) {
-                            this.plugin.getLogger().warning("Could not create config file");
-                        }
+                File file = new File(this.plugin.getDataFolder(), path);
+                if (!file.exists()) {
+                    file.mkdirs();
+                    try {
+                        file.createNewFile();
+                    } catch (IOException e) {
+                        this.plugin.getLogger().warning("Could not create config file");
                     }
-
-                    String identifier = file.getName();
-                    if (registrant.isAnnotationPresent(Identifier.class)) {
-                        identifier = registrant.getAnnotation(Identifier.class).value();
-                    }
-                    FileData data = new YamlData(identifier, file);
-                    for (Config config : registrant.getEnumConstants()) {
-                        config.setData(data);
-                        if (!config.isSet()) {
-                            config.setDefault();
-                        }
-                    }
-
-                    this.configClasses.put(data.getIdentifier(), registrant);
                 }
+
+                String identifier = file.getName();
+                if (registrant.isAnnotationPresent(Identifier.class)) {
+                    identifier = registrant.getAnnotation(Identifier.class).value();
+                }
+                FileData data = new YamlData(identifier, file);
+                for (Config config : registrant.getEnumConstants()) {
+                    config.setData(data);
+                    if (!config.isSet()) {
+                        config.setDefault();
+                    }
+                }
+
+                this.configClasses.put(data.getIdentifier(), registrant);
             } else {
-                //TODO: Add Lang for non FileConfig
+                LZLibLang.CONFIG_ERROR_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING, registrant.getSimpleName());
             }
         } else {
-            LZLibLang.CONFIG_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING);
+            LZLibLang.CONFIG_ERROR_NOT_ENUM.log(this.plugin.getLogger(), Level.WARNING, registrant.getSimpleName());
         }
     }
 
     @Override
-    public void unregister(Class<? extends Config> registrant) {
-        this.configClasses.remove(Config.getIdentifier(registrant), registrant);
+    public void unregister(Class<? extends FileConfig> registrant) {
+        this.configClasses.remove(Config.getPath(registrant), registrant);
     }
 
     @Override
@@ -98,7 +96,7 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
     }
 
     @Override
-    public Collection<Class<? extends Config>> getRegistered() {
+    public Collection<Class<? extends FileConfig>> getRegistered() {
         return this.configClasses.values();
     }
 
