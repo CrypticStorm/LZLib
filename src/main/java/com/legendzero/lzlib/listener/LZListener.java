@@ -22,10 +22,9 @@
 
 package com.legendzero.lzlib.listener;
 
-import com.legendzero.lzlib.interfaces.Toggleable;
 import org.bukkit.event.Listener;
 
-public interface LZListener<E> extends Listener, Toggleable {
+public interface LZListener<E> extends Listener {
 
     E getPlugin();
 }
