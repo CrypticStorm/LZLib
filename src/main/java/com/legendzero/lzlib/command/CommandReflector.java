@@ -30,26 +30,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Map;
 
 public class CommandReflector {
 
     private final Constructor<PluginCommand> constructor;
     private final CommandMap commandMap;
-    private final Map<String, LZCommand> aliasMap;
 
     public CommandReflector(Plugin plugin) {
         this.constructor = this.getConstructor();
         this.commandMap = this.getCommandMap(plugin);
-        this.aliasMap = this.findAliasMap();
     }
 
     public CommandMap getCommandMap() {
         return this.commandMap;
-    }
-
-    public Map<String, LZCommand> getAliasMap() {
-        return this.aliasMap;
     }
 
     public PluginCommand createBukkitCommand(LZCommand command) {
@@ -99,19 +92,5 @@ public class CommandReflector {
         }
 
         return cMap;
-    }
-
-    private Map<String, LZCommand> findAliasMap() {
-        Map<String, LZCommand> map = null;
-
-        try {
-            Field f = this.commandMap.getClass().getDeclaredField("knownCommands");
-            f.setAccessible(true);
-
-            map = (Map<String, LZCommand>) f.get(this.commandMap);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-        }
-
-        return map;
     }
 }

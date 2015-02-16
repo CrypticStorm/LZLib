@@ -30,14 +30,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public abstract class LZCommand<E extends JavaPlugin & Commandable<E>> implements Comparable<LZCommand> {
+public abstract class LZCommand<E extends Plugin & Commandable<E>> implements Comparable<LZCommand> {
 
     private final E plugin;
     private final LZCommand<E> parent;

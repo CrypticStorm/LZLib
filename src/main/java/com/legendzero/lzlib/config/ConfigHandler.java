@@ -28,9 +28,8 @@ import com.legendzero.lzlib.annotation.FilePath;
 import com.legendzero.lzlib.annotation.Identifier;
 import com.legendzero.lzlib.data.FileData;
 import com.legendzero.lzlib.data.YamlData;
-import com.legendzero.lzlib.interfaces.LZHandler;
 import com.legendzero.lzlib.lang.LZLibLang;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? extends FileConfig>> {
+public class ConfigHandler<E extends Plugin> {
 
     private final E plugin;
     private final Map<String, Class<? extends FileConfig>> configClasses;
@@ -69,7 +68,7 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
                     identifier = registrant.getAnnotation(Identifier.class).value();
                 }
                 FileData data = new YamlData(identifier, file);
-                for (Config config : registrant.getEnumConstants()) {
+                for (FileConfig config : registrant.getEnumConstants()) {
                     config.setData(data);
                     if (!config.isSet()) {
                         config.setDefault();
@@ -85,17 +84,14 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
         }
     }
 
-    @Override
     public void unregister(Class<? extends FileConfig> registrant) {
         this.configClasses.remove(Config.getPath(registrant), registrant);
     }
 
-    @Override
     public void unregisterAll() {
         this.configClasses.clear();
     }
 
-    @Override
     public Collection<Class<? extends FileConfig>> getRegistered() {
         return this.configClasses.values();
     }
@@ -104,7 +100,7 @@ public class ConfigHandler<E extends JavaPlugin> implements LZHandler<Class<? ex
         return ImmutableSet.copyOf(this.configClasses.keySet());
     }
 
-    public Class<? extends Config> getConfigClass(String identifier) {
+    public Class<? extends FileConfig> getConfigClass(String identifier) {
         return this.configClasses.get(identifier);
     }
 }

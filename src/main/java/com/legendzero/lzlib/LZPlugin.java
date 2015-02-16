@@ -22,10 +22,10 @@
 
 package com.legendzero.lzlib;
 
-import com.legendzero.lzlib.command.LZCommand;
 import com.legendzero.lzlib.command.CommandHandler;
-import com.legendzero.lzlib.config.Config;
+import com.legendzero.lzlib.command.LZCommand;
 import com.legendzero.lzlib.config.ConfigHandler;
+import com.legendzero.lzlib.config.FileConfig;
 import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
 import com.legendzero.lzlib.interfaces.Listenable;
@@ -39,32 +39,35 @@ import java.util.logging.Level;
 
 public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E>, Listenable<E> {
 
-    protected CommandHandler<E> commandHandler;
-    protected ConfigHandler<E> configHandler;
-    protected ListenerHandler<E> listenerHandler;
+    protected CommandHandler<E> commandHandler= null;
+    protected ConfigHandler<E> configHandler = null;
+    protected ListenerHandler<E> listenerHandler = null;
 
     @Override
     public void onLoad() {
+        this.registerHandlers();
+    }
+
+    @Override
+    public void onEnable() {
         LZLibLang.LOAD_SERIALIZABLES.log(this.getLogger(), Level.INFO);
         for (Class<? extends ConfigurationSerializable> clazz :
                 this.getSerializableClasses()) {
             ConfigurationSerialization.registerClass(clazz);
         }
-        this.listenerHandler = new ListenerHandler<>((E) this);
-    }
 
-    @Override
-    public void onEnable() {
-        LZLibLang.LOAD_CONFIGURATION.log(this.getLogger(), Level.INFO);
-        this.configHandler = new ConfigHandler<>((E) this);
-        for (Class<? extends Config> clazz : this.getConfigClasses()) {
-            this.configHandler.register(clazz);
+        if (this.configHandler != null) {
+            LZLibLang.LOAD_CONFIGURATION.log(this.getLogger(), Level.INFO);
+            for (Class<? extends FileConfig> clazz : this.getFileConfigClasses()) {
+                this.configHandler.register(clazz);
+            }
         }
 
-        LZLibLang.LOAD_COMMANDS.log(this.getLogger(), Level.INFO);
-        this.commandHandler = new CommandHandler<>((E) this);
-        for (LZCommand<E> command : this.getRootCommands()) {
-            this.commandHandler.register(command);
+        if (this.commandHandler != null) {
+            LZLibLang.LOAD_COMMANDS.log(this.getLogger(), Level.INFO);
+            for (LZCommand<E> command : this.getRootCommands()) {
+                this.commandHandler.register(command);
+            }
         }
     }
 
@@ -90,9 +93,17 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
         return this.listenerHandler;
     }
 
+    protected final void registerDefaultHandlers(E plugin) {
+        this.listenerHandler = new ListenerHandler<>(plugin);
+        this.configHandler = new ConfigHandler<>(plugin);
+        this.commandHandler = new CommandHandler<>(plugin);
+    }
+
+    public abstract void registerHandlers();
+
     public abstract Class<? extends ConfigurationSerializable>[] getSerializableClasses();
 
-    public abstract Class<? extends Config>[] getConfigClasses();
+    public abstract Class<? extends FileConfig>[] getFileConfigClasses();
 
     public abstract LZCommand<E>[] getRootCommands();
 }

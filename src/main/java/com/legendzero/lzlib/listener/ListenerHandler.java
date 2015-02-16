@@ -24,16 +24,15 @@ package com.legendzero.lzlib.listener;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.legendzero.lzlib.interfaces.LZHandler;
 import com.legendzero.lzlib.interfaces.Listenable;
 import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Collection;
 import java.util.Set;
 
-public class ListenerHandler<E extends JavaPlugin & Listenable<E>> implements LZHandler<LZListener<E>> {
+public class ListenerHandler<E extends Plugin & Listenable<E>> {
     
     private final E plugin;
     private final PluginManager pluginManager;
@@ -45,21 +44,18 @@ public class ListenerHandler<E extends JavaPlugin & Listenable<E>> implements LZ
         this.listeners = Sets.newHashSet();
     }
 
-    @Override
     public void register(LZListener<E> registrant) {
         if (this.listeners.add(registrant)) {
             this.pluginManager.registerEvents(registrant, this.plugin);
         }
     }
 
-    @Override
     public void unregister(LZListener<E> registrant) {
         if (this.listeners.remove(registrant)) {
             HandlerList.unregisterAll(registrant);
         }
     }
 
-    @Override
     public void unregisterAll() {
         for (LZListener<E> listener : this.listeners) {
             HandlerList.unregisterAll(listener);
@@ -67,7 +63,6 @@ public class ListenerHandler<E extends JavaPlugin & Listenable<E>> implements LZ
         this.listeners.clear();
     }
 
-    @Override
     public Collection<LZListener<E>> getRegistered() {
         return ImmutableSet.copyOf(this.listeners);
     }

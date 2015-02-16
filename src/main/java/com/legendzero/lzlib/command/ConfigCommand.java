@@ -30,13 +30,13 @@ import com.legendzero.lzlib.lang.LZLibLang;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
 
-public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<E>> extends LZCommand<E> {
+public class ConfigCommand<E extends Plugin & Commandable<E> & Configurable<E>> extends LZCommand<E> {
 
     public ConfigCommand(E plugin, LZCommand<E> parent, String name, String[] aliases, ConfigHandler<E> configHandler) {
         super(plugin, parent,
@@ -96,9 +96,8 @@ public class ConfigCommand<E extends JavaPlugin & Commandable<E> & Configurable<
                                     args.subList(2, args.size()), ' ');
                             Object value = argString;
                             try {
-                                Number number = NumberFormat.getInstance()
+                                value = NumberFormat.getInstance()
                                         .parse(argString);
-                                value = number;
                             } catch (ParseException e) {
                             }
                             config.set(value);

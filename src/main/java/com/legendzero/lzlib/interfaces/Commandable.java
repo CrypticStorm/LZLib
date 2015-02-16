@@ -23,9 +23,9 @@
 package com.legendzero.lzlib.interfaces;
 
 import com.legendzero.lzlib.command.CommandHandler;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
-public interface Commandable<E extends JavaPlugin & Commandable<E>> {
+public interface Commandable<E extends Plugin & Commandable<E>> {
 
     CommandHandler<E> getCommandHandler();
 }

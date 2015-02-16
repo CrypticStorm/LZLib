@@ -23,9 +23,9 @@
 package com.legendzero.lzlib.interfaces;
 
 import com.legendzero.lzlib.listener.ListenerHandler;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
-public interface Listenable<E extends JavaPlugin & Listenable<E>> {
+public interface Listenable<E extends Plugin & Listenable<E>> {
 
     ListenerHandler<E> getListenerHandler();
 }

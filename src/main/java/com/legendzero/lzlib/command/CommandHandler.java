@@ -25,18 +25,17 @@ package com.legendzero.lzlib.command;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.legendzero.lzlib.interfaces.Commandable;
-import com.legendzero.lzlib.interfaces.LZHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements LZHandler<LZCommand<E>>, TabExecutor {
+public class CommandHandler<E extends Plugin & Commandable<E>> implements TabExecutor {
 
     private final E plugin;
     private final CommandReflector reflector;
@@ -52,7 +51,6 @@ public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements LZ
         this.bukkitCommands = Maps.newHashMap();
     }
 
-    @Override
     public void register(LZCommand<E> registrant) {
         PluginCommand pluginCommand = this.reflector.createBukkitCommand(registrant);
         if (registrant != null && this.reflector.getCommandMap().register(this.plugin.getName(), pluginCommand)) {
@@ -66,7 +64,6 @@ public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements LZ
         }
     }
 
-    @Override
     public void unregister(LZCommand<E> registrant) {
         if (this.registeredCommands.remove(registrant.getName(), registrant)) {
             for (String alias : registrant.getAliases()) {
@@ -76,24 +73,21 @@ public class CommandHandler<E extends JavaPlugin & Commandable<E>> implements LZ
         }
     }
 
-    @Override
     public void unregisterAll() {
         this.registeredCommands.clear();
         this.registeredAliases.clear();
         this.bukkitCommands.clear();
     }
 
-    @Override
     public Collection<LZCommand<E>> getRegistered() {
         return this.registeredCommands.values();
     }
 
     @Override
     public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd, String cmdLabel, String[] args) {
-        if (!this.registeredCommands.containsKey(cmd.getName())) {
-            return true;
-        }
-        return this.registeredCommands.get(cmd.getName()).resolveCommand(sender, Lists.newArrayList(args));
+        return !this.registeredCommands.containsKey(cmd.getName()) ||
+                this.registeredCommands.get(cmd.getName())
+                        .resolveCommand(sender, Lists.newArrayList(args));
     }
 
     @Override

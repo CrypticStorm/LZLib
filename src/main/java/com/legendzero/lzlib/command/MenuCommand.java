@@ -25,11 +25,11 @@ package com.legendzero.lzlib.command;
 import com.legendzero.lzlib.interfaces.Commandable;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 
-public class MenuCommand<E extends JavaPlugin & Commandable<E>> extends LZCommand<E> {
+public class MenuCommand<E extends Plugin & Commandable<E>> extends LZCommand<E> {
 
     public MenuCommand(E plugin, LZCommand<E> parent, String name, String description, String usage, String[] aliases, PermissionDefault permissionDefault) {
         super(plugin, parent, name, description, usage, aliases, permissionDefault);
@@ -37,9 +37,8 @@ public class MenuCommand<E extends JavaPlugin & Commandable<E>> extends LZComman
 
     @Override
     protected boolean execute(CommandSender sender, List<String> args) {
-        this.getPermissibleSubCommands(sender).stream().sorted().forEach(command -> {
-            sender.sendMessage(command.getFullName());
-        });
+        this.getPermissibleSubCommands(sender).stream().sorted().forEach(
+                command -> sender.sendMessage(command.getFullName()));
         return true;
     }
 }

@@ -48,51 +48,35 @@ public interface Lang extends FileConfig {
 
     String defaultFormat();
 
+    default void sendSimple(CommandSender target, Object... args) {
+        target.sendMessage(this.simpleFormat(args));
+    }
+
     default void send(CommandSender target, Object... args) {
-        this.send(target, false, args);
+        target.sendMessage(this.format(args));
     }
 
-    default void send(CommandSender target, boolean simple, Object... args) {
-        if (simple) {
-            target.sendMessage(this.simpleFormat(args));
-        } else {
-            target.sendMessage(this.format(args));
-        }
+    default void sendRawSimple(Player target, Object... args) {
+        target.sendRawMessage(this.simpleFormat(args));
     }
 
-    default void sendRaw(CommandSender target, Object... args) {
-        this.sendRaw(target, false, args);
+    default void sendRaw(Player target, Object... args) {
+        target.sendRawMessage(this.format(args));
     }
 
-    default void sendRaw(Player target, boolean simple, Object... args) {
-        if (simple) {
-            target.sendRawMessage(this.simpleFormat(args));
-        } else {
-            target.sendRawMessage(this.format(args));
-        }
+    default void logSimple(Logger logger, Level level, Object... args) {
+        logger.log(level, this.simpleFormat(args));
     }
 
     default void log(Logger logger, Level level, Object... args) {
-        this.log(logger, level, false, args);
+        logger.log(level, this.format(args));
     }
 
-    default void log(Logger logger, Level level, boolean simple, Object... args) {
-        if (simple) {
-            logger.log(level, this.simpleFormat(args));
-        } else {
-            logger.log(level, this.format(args));
-        }
+    default void consumeSimple(Consumer<String> consumer, Object... args) {
+        consumer.accept(this.simpleFormat(args));
     }
 
     default void consume(Consumer<String> consumer, Object... args) {
-        this.consume(consumer, false, args);
-    }
-
-    default void consume(Consumer<String> consumer, boolean simple, Object... args) {
-        if (simple) {
-            consumer.accept(this.simpleFormat(args));
-        } else {
-            consumer.accept(this.format(args));
-        }
+        consumer.accept(this.format(args));
     }
 }
