@@ -26,15 +26,19 @@ import com.legendzero.lzlib.command.CommandHandler;
 import com.legendzero.lzlib.command.LZCommand;
 import com.legendzero.lzlib.config.ConfigHandler;
 import com.legendzero.lzlib.config.FileConfig;
+import com.legendzero.lzlib.gui.GuiProvider;
 import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
 import com.legendzero.lzlib.interfaces.Listenable;
 import com.legendzero.lzlib.lang.LZLibLang;
 import com.legendzero.lzlib.listener.ListenerHandler;
+import com.legendzero.lzlib.provider.Provider;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E>, Listenable<E> {
@@ -69,6 +73,8 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
                 this.commandHandler.register(command);
             }
         }
+
+        this.registerDefaultServiceProviders();
     }
 
     @Override
@@ -76,6 +82,7 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
         this.listenerHandler.unregisterAll();
         this.commandHandler.unregisterAll();
         this.configHandler.unregisterAll();
+        this.getServer().getServicesManager().unregisterAll(this);
     }
 
     @Override
@@ -91,6 +98,23 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
     @Override
     public ListenerHandler<E> getListenerHandler() {
         return this.listenerHandler;
+    }
+
+    public final void registerDefaultServiceProviders() {
+        this.registerServiceProvider(GuiProvider.class, GuiProvider::new, ServicePriority.Lowest);
+    }
+
+    public final <T extends Provider> T registerServiceProvider(Class<T> clazz,
+                                                          Supplier<T> supplier,
+                                                          ServicePriority priority) {
+        if (this.getServer().getServicesManager().isProvidedFor(clazz)) {
+            return this.getServer().getServicesManager().getRegistration(clazz).getProvider();
+        } else {
+            T t = supplier.get();
+            t.initialize(this);
+            this.getServer().getServicesManager().register(clazz, t, this, priority);
+            return t;
+        }
     }
 
     protected final void registerDefaultHandlers(E plugin) {
