@@ -26,7 +26,12 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.legendzero.lzlib.interfaces.Commandable;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -119,7 +124,33 @@ public abstract class LZCommand<E extends Plugin & Commandable<E>> implements Co
         }
     }
 
-    protected abstract boolean execute(CommandSender sender, List<String> args);
+    protected boolean execute(CommandSender sender, List<String> args) {
+        if (sender instanceof Player) {
+            Player.Spigot player = ((Player) sender).spigot();
+            BaseComponent[] title = new ComponentBuilder(
+                    "Command Help: " + this.getFullName() + "\n")
+                    .color(ChatColor.AQUA).underlined(true).create();
+            player.sendMessage(title);
+            this.getPermissibleSubCommands(sender).stream().sorted().forEach(
+                    command -> player.sendMessage(
+                            new ComponentBuilder("> ")
+                                    .color(ChatColor.YELLOW)
+                                    .bold(true)
+                                    .event(new ClickEvent(
+                                            ClickEvent.Action.RUN_COMMAND,
+                                            command.getFullName()))
+                                    .append(command.getFullName())
+                                    .color(ChatColor.AQUA)
+                                    .event(new ClickEvent(
+                                            ClickEvent.Action.SUGGEST_COMMAND,
+                                            command.getFullName()
+                                    )).create()));
+        } else {
+            this.getPermissibleSubCommands(sender).stream().sorted().forEach(
+                    command -> sender.sendMessage(command.getFullName()));
+        }
+        return true;
+    }
 
     protected List<String> tabComplete(CommandSender sender, List<String> args) {
         return Lists.newArrayList();
