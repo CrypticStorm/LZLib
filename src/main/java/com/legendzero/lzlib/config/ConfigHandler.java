@@ -38,12 +38,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class ConfigHandler<E extends Plugin> {
+public class ConfigHandler {
 
-    private final E plugin;
+    private final Plugin plugin;
     private final Map<String, Class<? extends FileConfig>> configClasses;
 
-    public ConfigHandler(E plugin) {
+    public ConfigHandler(Plugin plugin) {
         this.plugin = plugin;
         this.configClasses = Maps.newHashMap();
     }

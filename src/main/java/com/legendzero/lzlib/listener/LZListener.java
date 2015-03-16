@@ -22,9 +22,22 @@
 
 package com.legendzero.lzlib.listener;
 
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 
-public interface LZListener<E> extends Listener {
+public interface LZListener extends Listener {
 
-    E getPlugin();
+    default boolean register(Plugin plugin) {
+        if (!HandlerList.getRegisteredListeners(plugin).stream().map(RegisteredListener::getListener).filter(l -> l != this).findAny().isPresent()) {
+            plugin.getServer().getPluginManager().registerEvents(this, plugin);
+            return true;
+        }
+        return false;
+    }
+
+    default void unregister() {
+        HandlerList.unregisterAll(this);
+    }
 }

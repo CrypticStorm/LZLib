@@ -22,38 +22,37 @@
 
 package com.legendzero.lzlib;
 
-import com.legendzero.lzlib.command.CommandHandler;
-import com.legendzero.lzlib.command.LZCommand;
+import com.legendzero.lzlib.command.CommandReflector;
 import com.legendzero.lzlib.config.ConfigHandler;
 import com.legendzero.lzlib.config.FileConfig;
 import com.legendzero.lzlib.gui.GuiProvider;
-import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
-import com.legendzero.lzlib.interfaces.Listenable;
 import com.legendzero.lzlib.lang.LZLibLang;
-import com.legendzero.lzlib.listener.ListenerHandler;
 import com.legendzero.lzlib.provider.Provider;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.logging.Level;
 
-public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Commandable<E>, Configurable<E>, Listenable<E> {
+public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin implements Configurable {
 
-    protected CommandHandler<E> commandHandler= null;
-    protected ConfigHandler<E> configHandler = null;
-    protected ListenerHandler<E> listenerHandler = null;
+    protected ConfigHandler configHandler = null;
 
     @Override
-    public void onLoad() {
-        this.registerHandlers();
+    public final void onLoad() {
+        this.configHandler = new ConfigHandler(this);
+
+        this.load();
     }
 
+    protected abstract void load();
+
     @Override
-    public void onEnable() {
+    public final void onEnable() {
         LZLibLang.LOAD_SERIALIZABLES.log(this.getLogger(), Level.INFO);
         for (Class<? extends ConfigurationSerializable> clazz :
                 this.getSerializableClasses()) {
@@ -67,67 +66,49 @@ public abstract class LZPlugin<E extends LZPlugin<E>> extends JavaPlugin impleme
             }
         }
 
-        if (this.commandHandler != null) {
-            LZLibLang.LOAD_COMMANDS.log(this.getLogger(), Level.INFO);
-            for (LZCommand<E> command : this.getRootCommands()) {
-                this.commandHandler.register(command);
-            }
-        }
-
         this.registerDefaultServiceProviders();
+
+        this.enable();
     }
 
+    protected abstract void enable();
+
     @Override
-    public void onDisable() {
-        this.listenerHandler.unregisterAll();
-        this.commandHandler.unregisterAll();
+    public final void onDisable() {
         this.configHandler.unregisterAll();
         this.getServer().getServicesManager().unregisterAll(this);
+
+        this.disable();
     }
 
-    @Override
-    public CommandHandler<E> getCommandHandler() {
-        return this.commandHandler;
-    }
+    protected abstract void disable();
+
+    public abstract void loadCommands();
 
     @Override
-    public ConfigHandler<E> getConfigHandler() {
+    public ConfigHandler getConfigHandler() {
         return this.configHandler;
-    }
-    
-    @Override
-    public ListenerHandler<E> getListenerHandler() {
-        return this.listenerHandler;
     }
 
     public final void registerDefaultServiceProviders() {
         this.registerServiceProvider(GuiProvider.class, GuiProvider::new, ServicePriority.Lowest);
+        this.registerServiceProvider(CommandReflector.class, CommandReflector::new, ServicePriority.Lowest);
     }
 
     public final <T extends Provider> T registerServiceProvider(Class<T> clazz,
-                                                          Supplier<T> supplier,
+                                                          Function<? super Plugin, T> function,
                                                           ServicePriority priority) {
         if (this.getServer().getServicesManager().isProvidedFor(clazz)) {
             return this.getServer().getServicesManager().getRegistration(clazz).getProvider();
         } else {
-            T t = supplier.get();
-            t.initialize(this);
+            T t = function.apply(this);
+            t.initialize();
             this.getServer().getServicesManager().register(clazz, t, this, priority);
             return t;
         }
     }
 
-    protected final void registerDefaultHandlers(E plugin) {
-        this.listenerHandler = new ListenerHandler<>(plugin);
-        this.configHandler = new ConfigHandler<>(plugin);
-        this.commandHandler = new CommandHandler<>(plugin);
-    }
-
-    public abstract void registerHandlers();
-
     public abstract Class<? extends ConfigurationSerializable>[] getSerializableClasses();
 
     public abstract Class<? extends FileConfig>[] getFileConfigClasses();
-
-    public abstract LZCommand<E>[] getRootCommands();
 }

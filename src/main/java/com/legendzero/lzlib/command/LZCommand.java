@@ -23,75 +23,89 @@
 package com.legendzero.lzlib.command;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.legendzero.lzlib.interfaces.Commandable;
+import com.legendzero.lzlib.lang.LZLibLang;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
-public abstract class LZCommand<E extends Plugin & Commandable<E>> implements Comparable<LZCommand> {
+public abstract class LZCommand<E extends Plugin> implements TabExecutor, Comparable<LZCommand<?>> {
 
     private final E plugin;
-    private final LZCommand<E> parent;
-    private final String name;
-    private final String fullName;
-    private final String description;
-    private final String usage;
-    private final String[] aliases;
-    private final Permission permission;
-    private final Map<String, LZCommand<E>> subCommandMap;
+    private final LZCommand<?> parent;
+    private final Map<String, LZCommand<?>> subCommandMap;
 
-    public LZCommand(E plugin, LZCommand<E> parent, String name, String description, String usage, String[] aliases, PermissionDefault permissionDefault) {
+    public LZCommand(E plugin, LZCommand<?> parent) {
         this.plugin = plugin;
         this.parent = parent;
-        this.name = name;
-        if (this.parent == null) {
-            this.fullName = "/" + this.name;
-            this.permission = new Permission(this.plugin.getName() + ".cmd." + this.name, permissionDefault);
-        } else {
-            this.fullName = this.parent.fullName + " " + this.name;
-            this.permission = new Permission(this.plugin.getName() + ".cmd." + this.name, permissionDefault);
-        }
-        this.description = description;
-        this.usage = usage;
-        this.aliases = aliases;
-
         this.subCommandMap = Maps.newHashMap();
+
+        LZLibLang.COMMAND_LOAD.log(this.plugin.getLogger(), Level.INFO, this.getFullName());
+        if (this.parent == null) {
+            if (this.registerToBukkit()) {
+                LZLibLang.COMMAND_REGISTER_SUCCESS.log(this.plugin.getLogger(), Level.INFO, this.name());
+            } else {
+                LZLibLang.COMMAND_REGISTER_FAILURE.log(this.plugin.getLogger(), Level.INFO, this.name());
+            }
+        }
     }
 
-    @Override
-    public int compareTo(LZCommand other) {
-        return this.name.compareTo(other.name);
+    public final E getPlugin() {
+        return this.plugin;
     }
 
-    public void addSubCommand(LZCommand<E> command) {
-        this.registerAlias(command.getName(), command);
-        Arrays.stream(command.getAliases()).forEach(alias -> registerAlias(alias, command));
+    public final LZCommand<?> getParent() {
+        return this.parent;
     }
 
-    private void registerAlias(String alias, LZCommand<E> command) {
-        this.subCommandMap.putIfAbsent(alias, command);
+    public abstract String name();
+
+    public String getFullName() {
+        return (this.getParent() == null ? "/" : "") + this.name();
     }
 
-    public LZCommand<E> getSubCommand(Permissible permissible, String alias) {
-        LZCommand<E> command = this.subCommandMap.get(alias.toLowerCase());
+    public abstract String[] aliases();
+
+    public abstract String description();
+
+    protected abstract String usage();
+
+    protected abstract Permission permission();
+
+    public final Collection<LZCommand<?>> getSubCommands() {
+        return ImmutableSet.copyOf(this.subCommandMap.values());
+    }
+
+    public final Collection<LZCommand<?>> getPermissibleSubCommands(Permissible permissible) {
+        return this.subCommandMap.values().stream().filter(cmd -> permissible.hasPermission(cmd.permission())).collect(Collectors.toSet());
+    }
+
+    public LZCommand<?> getSubCommand(String alias) {
+        return this.getSubCommand(null, alias);
+    }
+
+    public LZCommand<?> getSubCommand(Permissible permissible, String alias) {
+        LZCommand<?> command = this.subCommandMap.get(alias.toLowerCase());
         if (permissible == null) {
             return command;
         } else {
-            if (command != null && permissible.hasPermission(command.getPermission())) {
+            if (command != null && permissible.hasPermission(command.permission())) {
                 return command;
             } else {
                 return null;
@@ -99,7 +113,22 @@ public abstract class LZCommand<E extends Plugin & Commandable<E>> implements Co
         }
     }
 
-    public boolean resolveCommand(CommandSender sender, List<String> args) {
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String... args) {
+        return this.resolveCommand(sender, Arrays.asList(args));
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String cmdLabel, String... args) {
+        return this.resolveTab(sender, Arrays.asList(args));
+    }
+
+    @Override
+    public int compareTo(LZCommand<?> other) {
+        return this.name().compareToIgnoreCase(other.name());
+    }
+
+    private boolean resolveCommand(CommandSender sender, List<String> args) {
         if (!args.isEmpty() && this.subCommandMap.containsKey(args.get(0).toLowerCase())) {
             return this.subCommandMap.get(args.remove(0)).resolveCommand(sender, args);
         } else {
@@ -107,28 +136,20 @@ public abstract class LZCommand<E extends Plugin & Commandable<E>> implements Co
         }
     }
 
-    public List<String> resolveTab(CommandSender sender, List<String> args) {
-        if (this.subCommandMap.isEmpty()) {
-            return this.tabComplete(sender, args);
-        } else if (!args.isEmpty()) {
-            if (this.subCommandMap.containsKey(args.get(0).toLowerCase())) {
-                return this.subCommandMap.get(args.remove(0)).resolveTab(sender, args);
-            } else if (args.size() == 1) {
-                String arg = args.get(0);
-                return Lists.newArrayList(this.subCommandMap.keySet().stream().filter(cmd -> cmd.startsWith(arg)).iterator());
-            } else {
-                return Lists.newArrayList();
-            }
+    protected List<String> resolveTab(CommandSender sender, List<String> args) {
+        if (!args.isEmpty() && this.subCommandMap.containsKey(args.get(0).toLowerCase())) {
+            return this.subCommandMap.get(args.remove(0)).resolveTab(sender, args);
         } else {
-            return Lists.newArrayList(this.subCommandMap.keySet().iterator());
+            return this.tabComplete(sender, args);
         }
     }
 
     protected boolean execute(CommandSender sender, List<String> args) {
+        String fullName = getFullName();
         if (sender instanceof Player) {
             Player.Spigot player = ((Player) sender).spigot();
             BaseComponent[] title = new ComponentBuilder(
-                    "Command Help: " + this.getFullName() + "\n")
+                    "Command Help: " + fullName + "\n")
                     .color(ChatColor.AQUA).underlined(true).create();
             player.sendMessage(title);
             this.getPermissibleSubCommands(sender).stream().sorted().forEach(
@@ -138,62 +159,51 @@ public abstract class LZCommand<E extends Plugin & Commandable<E>> implements Co
                                     .bold(true)
                                     .event(new ClickEvent(
                                             ClickEvent.Action.RUN_COMMAND,
-                                            command.getFullName()))
-                                    .append(command.getFullName())
+                                            fullName))
+                                    .append(fullName)
                                     .color(ChatColor.AQUA)
                                     .event(new ClickEvent(
                                             ClickEvent.Action.SUGGEST_COMMAND,
-                                            command.getFullName()
-                                    )).create()));
+                                            fullName))
+                                    .create()));
         } else {
             this.getPermissibleSubCommands(sender).stream().sorted().forEach(
-                    command -> sender.sendMessage(command.getFullName()));
+                    command -> sender.sendMessage(fullName));
         }
         return true;
     }
 
     protected List<String> tabComplete(CommandSender sender, List<String> args) {
-        return Lists.newArrayList();
+        return this.getPermissibleSubCommands(sender).stream().map(LZCommand::name).collect(Collectors.toList());
     }
 
-    public final LZCommand<E> getParent() {
-        return this.parent;
+    public void registerSubCommand(LZCommand<?>... commands) {
+        Arrays.stream(commands).forEach(this::registerSubCommand);
     }
 
-    public final E getPlugin() {
-        return this.plugin;
+    public void registerSubCommand(LZCommand<?> command) {
+        this.registerAlias(command.name(), command);
+        Arrays.stream(command.aliases()).forEach(alias -> registerAlias(alias, command));
     }
 
-    public final String getName() {
-        return this.name;
+    public void registerAlias(String alias, LZCommand<?>... commands) {
+        Arrays.stream(commands).forEach(cmd -> this.registerAlias(alias, cmd));
     }
 
-    public final String getFullName() {
-        return this.fullName;
+    private void registerAlias(String alias, LZCommand<?> command) {
+        this.subCommandMap.putIfAbsent(alias, command);
     }
 
-    public final String getDescription() {
-        return this.description;
-    }
 
-    public final String getUsage() {
-        return this.usage;
+    public final boolean registerToBukkit() {
+        PluginCommand pluginCommand = this.plugin.getServer().getPluginCommand(this.name());
+        if (pluginCommand == null) {
+            CommandReflector reflector = this.plugin.getServer().getServicesManager().getRegistration(CommandReflector.class).getProvider();
+            pluginCommand = reflector.createBukkitCommand(this);
+            reflector.getCommandMap().register(this.plugin.getName().toLowerCase(), pluginCommand);
+            pluginCommand.setExecutor(this);
+            return true;
+        }
+        return false;
     }
-
-    public final String[] getAliases() {
-        return this.aliases;
-    }
-
-    public final Permission getPermission() {
-        return this.permission;
-    }
-
-    public final Collection<LZCommand<E>> getSubCommands() {
-        return ImmutableSet.copyOf(this.subCommandMap.values());
-    }
-
-    public final Collection<LZCommand<E>> getPermissibleSubCommands(Permissible permissible) {
-        return ImmutableSet.copyOf(this.subCommandMap.values().stream().filter(cmd -> permissible.hasPermission(cmd.permission)).iterator());
-    }
-
 }

@@ -32,9 +32,15 @@ import org.bukkit.plugin.Plugin;
 
 public class GuiProvider implements Listener, Provider {
 
+    private final Plugin plugin;
+
+    public GuiProvider(Plugin plugin) {
+        this.plugin = plugin;
+    }
+
     @Override
-    public void initialize(Plugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    public void initialize() {
+        this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
     }
 
     @Override

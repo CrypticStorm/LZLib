@@ -22,11 +22,9 @@
 
 package com.legendzero.lzlib.provider;
 
-import org.bukkit.plugin.Plugin;
-
 public interface Provider {
 
-    void initialize(Plugin plugin);
+    void initialize();
 
     void uninitialize();
 }

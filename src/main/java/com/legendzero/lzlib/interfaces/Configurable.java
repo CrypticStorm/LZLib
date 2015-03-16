@@ -23,9 +23,8 @@
 package com.legendzero.lzlib.interfaces;
 
 import com.legendzero.lzlib.config.ConfigHandler;
-import org.bukkit.plugin.Plugin;
 
-public interface Configurable<E extends Plugin & Configurable<E>> {
+public interface Configurable {
 
-    ConfigHandler<E> getConfigHandler();
+    ConfigHandler getConfigHandler();
 }

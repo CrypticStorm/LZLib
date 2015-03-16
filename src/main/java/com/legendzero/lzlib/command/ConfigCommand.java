@@ -24,11 +24,11 @@ package com.legendzero.lzlib.command;
 
 import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.config.ConfigHandler;
-import com.legendzero.lzlib.interfaces.Commandable;
 import com.legendzero.lzlib.interfaces.Configurable;
 import com.legendzero.lzlib.lang.LZLibLang;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
+import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 
@@ -36,20 +36,15 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
 
-public class ConfigCommand<E extends Plugin & Commandable<E> & Configurable<E>> extends LZCommand<E> {
+public class ConfigCommand<E extends Plugin & Configurable> extends LZCommand<E> {
 
-    public ConfigCommand(E plugin, LZCommand<E> parent, String name, String[] aliases, ConfigHandler<E> configHandler) {
-        super(plugin, parent,
-                name,
-                "Edit config values for " + plugin.getName(),
-                (parent == null ? "/" : parent.getFullName()) +
-                        " " + name + " <file> <path> <value>",
-                aliases, PermissionDefault.OP);
+    public ConfigCommand(E plugin, LZCommand<E> parent) {
+        super(plugin, parent);
     }
 
     @Override
     protected boolean execute(CommandSender sender, List<String> args) {
-        ConfigHandler<E> configHandler = this.getPlugin().getConfigHandler();
+        ConfigHandler configHandler = this.getPlugin().getConfigHandler();
         Class<? extends Config> configClass;
         switch (args.size()) {
             case 0:
@@ -112,5 +107,31 @@ public class ConfigCommand<E extends Plugin & Commandable<E> & Configurable<E>> 
         }
 
         return false;
+    }
+
+    @Override
+    public String name() {
+        return "config";
+    }
+
+    @Override
+    public String[] aliases() {
+        return new String[] {"cfg"};
+    }
+
+    @Override
+    public String description() {
+        return "Edit config values for " + this.getPlugin().getName();
+    }
+
+    @Override
+    public String usage() {
+        return " <file> <path> <value>";
+    }
+
+    @Override
+    public Permission permission() {
+        return new Permission(this.getPlugin().getName() + ".cmd." + this.name(),
+                this.description(), PermissionDefault.OP);
     }
 }

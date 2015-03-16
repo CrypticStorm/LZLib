@@ -22,23 +22,25 @@
 
 package com.legendzero.lzlib.command;
 
+import com.legendzero.lzlib.provider.Provider;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
-public class CommandReflector {
+public class CommandReflector implements Provider {
 
-    private final Constructor<PluginCommand> constructor;
-    private final CommandMap commandMap;
+    private final Class<? extends PluginManager> pluginManagerClass;
+    private Constructor<PluginCommand> constructor;
+    private CommandMap commandMap;
 
     public CommandReflector(Plugin plugin) {
-        this.constructor = this.getConstructor();
-        this.commandMap = this.getCommandMap(plugin);
+        this.pluginManagerClass = plugin.getServer().getPluginManager().getClass();
     }
 
     public CommandMap getCommandMap() {
@@ -46,30 +48,30 @@ public class CommandReflector {
     }
 
     public PluginCommand createBukkitCommand(LZCommand command) {
-        PluginCommand pluginCommand = this.createCommand(command);
+        PluginCommand pluginCommand = this.constructBukkitCommand(command);
         if (pluginCommand == null) {
             return null;
         }
 
-        pluginCommand.setLabel(command.getName());
-        pluginCommand.setDescription(command.getDescription());
-        pluginCommand.setUsage(command.getUsage());
-        pluginCommand.setAliases(Arrays.asList(command.getAliases()));
+        pluginCommand.setLabel(command.name());
+        pluginCommand.setDescription(command.description());
+        pluginCommand.setUsage(command.usage());
+        pluginCommand.setAliases(Arrays.asList(command.aliases()));
         return pluginCommand;
     }
 
-    private PluginCommand createCommand(LZCommand command) {
+    private PluginCommand constructBukkitCommand(LZCommand command) {
         PluginCommand pluginCommand = null;
 
         try {
-            pluginCommand = constructor.newInstance(command.getName(), command.getPlugin());
+            pluginCommand = constructor.newInstance(command.name(), command.getPlugin());
         } catch (SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
         }
 
         return pluginCommand;
     }
 
-    private Constructor<PluginCommand> getConstructor() {
+    private Constructor<PluginCommand> defineConstructor() {
         Constructor<PluginCommand> c = null;
         try {
             c = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
@@ -80,17 +82,27 @@ public class CommandReflector {
         return c;
     }
 
-    private CommandMap getCommandMap(Plugin plugin) {
+    private CommandMap defineCommandMap() {
         CommandMap cMap = null;
 
         try {
-            Field f = plugin.getServer().getPluginManager().getClass().getDeclaredField("commandMap");
+            Field f = this.pluginManagerClass.getDeclaredField("commandMap");
             f.setAccessible(true);
 
-            cMap = (CommandMap) f.get(plugin.getServer().getPluginManager());
+            cMap = (CommandMap) f.get(this.pluginManagerClass);
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
         }
 
         return cMap;
+    }
+
+    @Override
+    public void initialize() {
+        this.constructor = this.defineConstructor();
+        this.commandMap = this.defineCommandMap();
+    }
+
+    @Override
+    public void uninitialize() {
     }
 }

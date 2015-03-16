@@ -29,7 +29,9 @@ public enum LZLibLang implements Lang {
 
     LOAD_SERIALIZABLES("load.serializables", "Loading configuration serializables"),
     LOAD_CONFIGURATION("load.configuration", "Loading configuration"),
-    LOAD_COMMANDS("load.commands", "Loading command system"),
+    COMMAND_LOAD("command.load", "Loading %s"),
+    COMMAND_REGISTER_SUCCESS("command.register.success", "Registered %s to Bukkit."),
+    COMMAND_REGISTER_FAILURE("command.register.failure", "Failed to register %s to Bukkit."),
 
     CONFIG_ERROR_NOT_FOUND("config.error.notfound", RED + "Invalid config file"),
     CONFIG_ERROR_NOT_ENUM("config.error.notenum", RED + "%s is not an enum."),
