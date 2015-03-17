@@ -36,8 +36,6 @@ public abstract class LZPlugin extends JavaPlugin {
 
     @Override
     public final void onEnable() {
-        this.loadCommands();
-
         this.enable();
     }
 
@@ -53,6 +51,4 @@ public abstract class LZPlugin extends JavaPlugin {
     }
 
     protected abstract void disable();
-
-    public abstract void loadCommands();
 }
