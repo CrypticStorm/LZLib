@@ -24,6 +24,7 @@ package com.legendzero.lzlib.lang;
 
 import com.legendzero.lzlib.config.FileConfig;
 import org.bukkit.command.CommandSender;
+import org.bukkit.conversations.Conversable;
 import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
@@ -56,11 +57,11 @@ public interface Lang extends FileConfig {
         target.sendMessage(this.format(args));
     }
 
-    default void sendRawSimple(Player target, Object... args) {
+    default void sendRawSimple(Conversable target, Object... args) {
         target.sendRawMessage(this.simpleFormat(args));
     }
 
-    default void sendRaw(Player target, Object... args) {
+    default void sendRaw(Conversable target, Object... args) {
         target.sendRawMessage(this.format(args));
     }
 
