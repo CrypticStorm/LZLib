@@ -22,30 +22,31 @@
 
 package com.legendzero.lzlib.command;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.service.Service;
-import org.bukkit.plugin.Plugin;
 
 import java.util.Map;
 
 public class ConfigMap implements Service {
 
-    private final Map<Plugin, Map<String, Class<? extends Config>>> configMap;
+    private final Map<String, Class<? extends Config>> configMap;
 
     public ConfigMap() {
         this.configMap = Maps.newHashMap();
     }
 
-    public Map<String, Class<? extends Config>> getConfigMap(Plugin plugin) {
-        return this.configMap.get(plugin);
+    public Map<String, Class<? extends Config>> getConfigMap() {
+        return ImmutableMap.copyOf(this.configMap);
     }
 
-    public void register(Plugin plugin, String identifier, Class<? extends Config> clazz) {
-        if (!this.configMap.containsKey(plugin)) {
-            this.configMap.put(plugin, Maps.newHashMap());
-        }
-        this.configMap.get(plugin).putIfAbsent(identifier, clazz);
+    public void register(Class<? extends Config> clazz) {
+        this.register(Config.getIdentifier(clazz), clazz);
+    }
+
+    public void register(String identifier, Class<? extends Config> clazz) {
+        this.configMap.putIfAbsent(identifier, clazz);
     }
 
     @Override

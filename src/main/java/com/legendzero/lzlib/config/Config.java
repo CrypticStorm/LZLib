@@ -30,7 +30,6 @@ import com.legendzero.lzlib.data.FileData;
 import com.legendzero.lzlib.data.YamlData;
 import com.legendzero.lzlib.lang.LZLibLang;
 import org.apache.commons.lang.ClassUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -101,11 +100,7 @@ public interface Config<E extends Data> {
 
     static void register(Class<? extends FileConfig> registrant) {
         if (registrant.isEnum()) {
-            String identifier = registrant.getName();
-
-            if (registrant.isAnnotationPresent(Identifier.class)) {
-                identifier = registrant.getAnnotation(Identifier.class).value();
-            }
+            String identifier = getIdentifier(registrant);
 
             if (registrant.isAnnotationPresent(PluginClass.class)) {
                 Plugin plugin = getPlugin(registrant);
@@ -138,6 +133,15 @@ public interface Config<E extends Data> {
                 }
             }
         }
+    }
+
+    static String getIdentifier(Class<?> clazz) {
+        String identifier = clazz.getName();
+
+        if (clazz.isAnnotationPresent(Identifier.class)) {
+            identifier = clazz.getAnnotation(Identifier.class).value();
+        }
+        return identifier;
     }
 
     static String getPath(AnnotatedElement element) {

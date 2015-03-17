@@ -37,14 +37,16 @@ import java.util.Map;
 
 public class ConfigCommand extends LZCommand {
 
+    private final ConfigMap configMap;
+
     public ConfigCommand(Plugin plugin, LZCommand parent) {
         super(plugin, parent);
+        this.configMap = new ConfigMap();
     }
 
     @Override
     protected boolean execute(CommandSender sender, List<String> args) {
-        ConfigMap configMap = null;
-        Map<String, Class<? extends Config>> map = configMap.getConfigMap(this.getPlugin());
+        Map<String, Class<? extends Config>> map = this.configMap.getConfigMap();
         Class<? extends Config> configClass;
         switch (args.size()) {
             case 0:
@@ -133,5 +135,9 @@ public class ConfigCommand extends LZCommand {
     public Permission permission() {
         return new Permission(this.getPlugin().getName() + ".cmd." + this.name(),
                 this.description(), PermissionDefault.OP);
+    }
+
+    public void register(Class<? extends Config> clazz) {
+        this.configMap.register(clazz);
     }
 }

@@ -22,7 +22,6 @@
 
 package com.legendzero.lzlib.util;
 
-import com.legendzero.lzlib.command.ConfigMap;
 import com.legendzero.lzlib.gui.GuiService;
 import com.legendzero.lzlib.service.Service;
 import org.bukkit.plugin.Plugin;
@@ -36,8 +35,7 @@ public final class Services {
     private Services() {}
 
     public final void registerDefaultServiceProviders(Plugin plugin) {
-        registerServiceProvider(plugin, ConfigMap.class, ConfigMap::new, ServicePriority.Lowest);
-        Services.registerServiceProvider(plugin, GuiService.class, GuiService::new, ServicePriority.Lowest);
+        registerServiceProvider(plugin, GuiService.class, GuiService::new, ServicePriority.Lowest);
     }
 
     public static <T extends Service> T registerServiceProvider(Plugin plugin, Class<T> clazz,
