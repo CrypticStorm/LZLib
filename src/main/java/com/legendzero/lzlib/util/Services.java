@@ -54,13 +54,6 @@ public final class Services {
     public static <T extends Service> T registerServiceProvider(Plugin plugin, Class<T> clazz,
                                                                Function<? super Plugin, T> function,
                                                                ServicePriority priority) {
-        if (plugin.getServer().getServicesManager().isProvidedFor(clazz)) {
-            return plugin.getServer().getServicesManager().getRegistration(clazz).getProvider();
-        } else {
-            T t = function.apply(plugin);
-            t.initialize();
-            plugin.getServer().getServicesManager().register(clazz, t, plugin, priority);
-            return t;
-        }
+        return registerServiceProvider(plugin, clazz, () -> function.apply(plugin), priority);
     }
 }
