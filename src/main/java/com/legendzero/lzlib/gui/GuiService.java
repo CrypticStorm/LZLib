@@ -22,7 +22,7 @@
 
 package com.legendzero.lzlib.gui;
 
-import com.legendzero.lzlib.provider.Provider;
+import com.legendzero.lzlib.service.Service;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -30,11 +30,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.Plugin;
 
-public class GuiProvider implements Listener, Provider {
+public class GuiService implements Listener, Service {
 
     private final Plugin plugin;
 
-    public GuiProvider(Plugin plugin) {
+    public GuiService(Plugin plugin) {
         this.plugin = plugin;
     }
 

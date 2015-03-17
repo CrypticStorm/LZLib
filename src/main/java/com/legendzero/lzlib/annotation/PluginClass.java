@@ -20,11 +20,17 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib.provider;
+package com.legendzero.lzlib.annotation;
 
-public interface Provider {
+import org.bukkit.plugin.java.JavaPlugin;
 
-    void initialize();
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    void uninitialize();
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface PluginClass {
+    Class<? extends JavaPlugin> value();
 }

@@ -22,7 +22,7 @@
 
 package com.legendzero.lzlib.command;
 
-import com.legendzero.lzlib.provider.Provider;
+import com.legendzero.lzlib.service.Service;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
@@ -33,7 +33,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
-public class CommandReflector implements Provider {
+public class CommandReflector implements Service {
 
     private final Class<? extends PluginManager> pluginManagerClass;
     private Constructor<PluginCommand> constructor;

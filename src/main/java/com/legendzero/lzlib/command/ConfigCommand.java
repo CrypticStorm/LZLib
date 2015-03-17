@@ -22,11 +22,9 @@
 
 package com.legendzero.lzlib.command;
 
+import com.google.common.base.Joiner;
 import com.legendzero.lzlib.config.Config;
-import com.legendzero.lzlib.config.ConfigHandler;
-import com.legendzero.lzlib.interfaces.Configurable;
 import com.legendzero.lzlib.lang.LZLibLang;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -35,26 +33,28 @@ import org.bukkit.plugin.Plugin;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Map;
 
-public class ConfigCommand<E extends Plugin & Configurable> extends LZCommand<E> {
+public class ConfigCommand extends LZCommand {
 
-    public ConfigCommand(E plugin, LZCommand<E> parent) {
+    public ConfigCommand(Plugin plugin, LZCommand parent) {
         super(plugin, parent);
     }
 
     @Override
     protected boolean execute(CommandSender sender, List<String> args) {
-        ConfigHandler configHandler = this.getPlugin().getConfigHandler();
+        ConfigMap configMap = null;
+        Map<String, Class<? extends Config>> map = configMap.getConfigMap(this.getPlugin());
         Class<? extends Config> configClass;
         switch (args.size()) {
             case 0:
                 LZLibLang.CONFIG_FILE_LIST_HEADER.send(sender);
-                for (String identifier : configHandler.getIdentifiers()) {
+                for (String identifier : map.keySet()) {
                     LZLibLang.CONFIG_FILE_LIST_ITEM.send(sender, identifier);
                 }
                 break;
             case 1:
-                configClass = configHandler.getConfigClass(args.get(0));
+                configClass = map.get(args.get(0));
                 if (configClass == null) {
                     LZLibLang.CONFIG_ERROR_NOT_FOUND.send(sender);
                 } else {
@@ -65,7 +65,7 @@ public class ConfigCommand<E extends Plugin & Configurable> extends LZCommand<E>
                 }
                 break;
             case 2:
-                configClass = configHandler.getConfigClass(args.get(0));
+                configClass = map.get(args.get(0));
                 if (configClass == null) {
                     LZLibLang.CONFIG_ERROR_NOT_FOUND.send(sender);
                 } else {
@@ -81,14 +81,14 @@ public class ConfigCommand<E extends Plugin & Configurable> extends LZCommand<E>
                 }
                 break;
             default:
-                configClass = configHandler.getConfigClass(args.get(0));
+                configClass = map.get(args.get(0));
                 if (configClass == null) {
                     LZLibLang.CONFIG_ERROR_NOT_FOUND.send(sender);
                 } else {
                     for (Config config : configClass.getEnumConstants()) {
                         if (args.get(1).equalsIgnoreCase(config.getPath())) {
-                            String argString = StringUtils.join(
-                                    args.subList(2, args.size()), ' ');
+                            String argString = Joiner.on(' ').join(
+                                    args.subList(2, args.size()));
                             Object value = argString;
                             try {
                                 value = NumberFormat.getInstance()

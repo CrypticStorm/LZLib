@@ -20,47 +20,39 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib;
+package com.legendzero.lzlib.command;
 
-import com.legendzero.lzlib.command.CommandReflector;
-import com.legendzero.lzlib.gui.GuiService;
+import com.google.common.collect.Maps;
+import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.service.Service;
-import com.legendzero.lzlib.util.Services;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.ServicePriority;
-import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.function.Function;
+import java.util.Map;
 
-public abstract class LZPlugin extends JavaPlugin {
+public class ConfigMap implements Service {
 
+    private final Map<Plugin, Map<String, Class<? extends Config>>> configMap;
 
-    @Override
-    public final void onLoad() {
-        this.load();
+    public ConfigMap() {
+        this.configMap = Maps.newHashMap();
     }
 
-    protected abstract void load();
-
-    @Override
-    public final void onEnable() {
-        this.loadCommands();
-
-        this.enable();
+    public Map<String, Class<? extends Config>> getConfigMap(Plugin plugin) {
+        return this.configMap.get(plugin);
     }
 
-    protected abstract void enable();
-
-    @Override
-    public final void onDisable() {
-        this.getServer().getServicesManager().getRegistrations(this).stream()
-                .filter(rsp -> rsp.getProvider() instanceof Service)
-                .map(Service.class::cast).forEach(Service::uninitialize);
-
-        this.disable();
+    public void register(Plugin plugin, String identifier, Class<? extends Config> clazz) {
+        if (!this.configMap.containsKey(plugin)) {
+            this.configMap.put(plugin, Maps.newHashMap());
+        }
+        this.configMap.get(plugin).putIfAbsent(identifier, clazz);
     }
 
-    protected abstract void disable();
+    @Override
+    public void initialize() {
+    }
 
-    public abstract void loadCommands();
+    @Override
+    public void uninitialize() {
+    }
 }

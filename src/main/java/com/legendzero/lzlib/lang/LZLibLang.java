@@ -43,6 +43,9 @@ public enum LZLibLang implements Lang {
     CONFIG_PATH_LIST_ITEM("config.pathlist.item", GRAY + "> " + RESET + "%s"),
     CONFIG_PATH_VALUE("config.pathvalue", "%s " + GRAY + ">" + RESET + " %s " + GRAY + "(%s)"),
 
+    FILE_CREATE_FAILURE("file.create.failure", "Failed to create file: %s"),
+    FILE_CREATE_SUCCESS("file.create.success", "Successfully created file: %s"),
+
     FORMAT("format", GOLD + "[" +RED + "LZLib" +
             GOLD + "]" + RESET)
     ;

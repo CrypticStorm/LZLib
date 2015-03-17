@@ -23,10 +23,21 @@
 package com.legendzero.lzlib.config;
 
 import com.legendzero.lzlib.annotation.FilePath;
+import com.legendzero.lzlib.annotation.Identifier;
+import com.legendzero.lzlib.annotation.PluginClass;
 import com.legendzero.lzlib.data.Data;
+import com.legendzero.lzlib.data.FileData;
+import com.legendzero.lzlib.data.YamlData;
+import com.legendzero.lzlib.lang.LZLibLang;
 import org.apache.commons.lang.ClassUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.AnnotatedElement;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 
 public interface Config<E extends Data> {
@@ -87,10 +98,56 @@ public interface Config<E extends Data> {
             return null;
         }
     }
-    
+
+    static void register(Class<? extends FileConfig> registrant) {
+        if (registrant.isEnum()) {
+            String identifier = registrant.getName();
+
+            if (registrant.isAnnotationPresent(Identifier.class)) {
+                identifier = registrant.getAnnotation(Identifier.class).value();
+            }
+
+            if (registrant.isAnnotationPresent(PluginClass.class)) {
+                Plugin plugin = getPlugin(registrant);
+
+                File file = new File(plugin.getDataFolder(), "config.yml");
+
+                if (registrant.isAnnotationPresent(FilePath.class)) {
+                    String path = getPath(registrant);
+                    file = new File(plugin.getDataFolder(), path);
+                }
+
+                if (file.mkdirs()) {
+                    LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getParentFile().getAbsolutePath());
+                }
+
+                try {
+                    if (file.createNewFile()) {
+                        LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getName());
+                    }
+                } catch (IOException e) {
+                    LZLibLang.FILE_CREATE_FAILURE.log(plugin.getLogger(), Level.WARNING, file.getName());
+                }
+
+                FileData data = new YamlData(identifier, file);
+                for (FileConfig config : registrant.getEnumConstants()) {
+                    config.setData(data);
+                    if (!config.isSet()) {
+                        config.setDefault();
+                    }
+                }
+            }
+        }
+    }
+
     static String getPath(AnnotatedElement element) {
         FilePath annotation = element.getAnnotation(FilePath.class);
         return annotation.value().replaceAll("[/\\\\]+",
                 Matcher.quoteReplacement(System.getProperty("file.separator")));
+    }
+
+    static Plugin getPlugin(AnnotatedElement element) {
+        PluginClass annotation = element.getAnnotation(PluginClass.class);
+        return JavaPlugin.getPlugin(annotation.value());
     }
 }

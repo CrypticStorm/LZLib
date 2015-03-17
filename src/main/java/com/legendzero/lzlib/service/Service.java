@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib.interfaces;
+package com.legendzero.lzlib.service;
 
-import com.legendzero.lzlib.config.ConfigHandler;
+public interface Service {
 
-public interface Configurable {
+    void initialize();
 
-    ConfigHandler getConfigHandler();
+    void uninitialize();
 }
