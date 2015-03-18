@@ -98,38 +98,32 @@ public interface Config<E extends Data> {
         }
     }
 
-    static void register(Class<? extends FileConfig> registrant) {
-        if (registrant.isEnum()) {
-            String identifier = getIdentifier(registrant);
+    static <T extends Enum & FileConfig> void register(Class<T> registrant) {
+        String identifier = getIdentifier(registrant);
 
-            if (registrant.isAnnotationPresent(PluginClass.class)) {
-                Plugin plugin = getPlugin(registrant);
+        if (registrant.isAnnotationPresent(PluginClass.class)) {
+            Plugin plugin = getPlugin(registrant);
 
-                File file = new File(plugin.getDataFolder(), registrant.getSimpleName().toLowerCase() + ".yml");
+            String path = Config.getPath(registrant);
+            File file = new File(plugin.getDataFolder(), path);
 
-                if (registrant.isAnnotationPresent(FilePath.class)) {
-                    String path = getPath(registrant);
-                    file = new File(plugin.getDataFolder(), path);
+            if (file.mkdirs()) {
+                LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getParentFile().getAbsolutePath());
+            }
+
+            try {
+                if (file.createNewFile()) {
+                    LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getName());
                 }
+            } catch (IOException e) {
+                LZLibLang.FILE_CREATE_FAILURE.log(plugin.getLogger(), Level.WARNING, file.getName());
+            }
 
-                if (file.mkdirs()) {
-                    LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getParentFile().getAbsolutePath());
-                }
-
-                try {
-                    if (file.createNewFile()) {
-                        LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getName());
-                    }
-                } catch (IOException e) {
-                    LZLibLang.FILE_CREATE_FAILURE.log(plugin.getLogger(), Level.WARNING, file.getName());
-                }
-
-                FileData data = new YamlData(identifier, file);
-                for (FileConfig config : registrant.getEnumConstants()) {
-                    config.setData(data);
-                    if (!config.isSet()) {
-                        config.setDefault();
-                    }
+            FileData data = new YamlData(identifier, file);
+            for (FileConfig config : registrant.getEnumConstants()) {
+                config.setData(data);
+                if (!config.isSet()) {
+                    config.setDefault();
                 }
             }
         }
@@ -144,10 +138,14 @@ public interface Config<E extends Data> {
         return identifier;
     }
 
-    static String getPath(AnnotatedElement element) {
-        FilePath annotation = element.getAnnotation(FilePath.class);
-        return annotation.value().replaceAll("[/\\\\]+",
-                Matcher.quoteReplacement(System.getProperty("file.separator")));
+    static String getPath(Class<?> clazz) {
+        String path = clazz.getSimpleName();
+        if (clazz.isAnnotationPresent(FilePath.class)) {
+            FilePath annotation = clazz.getAnnotation(FilePath.class);
+            path = annotation.value().replaceAll("[/\\\\]+",
+                    Matcher.quoteReplacement(System.getProperty("file.separator")));
+        }
+        return path;
     }
 
     static Plugin getPlugin(AnnotatedElement element) {
