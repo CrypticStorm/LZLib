@@ -50,10 +50,10 @@ public class GuiService implements Listener, Service {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if(event.getWhoClicked() instanceof Player) {
-            if(event.getInventory().getHolder() instanceof GuiInventoryHolder) {
-                event.setCancelled(true);
-                if(event.getRawSlot() < event.getInventory().getSize()) {
+        if(event.getInventory().getHolder() instanceof GuiInventoryHolder) {
+            event.setCancelled(true);
+            if(event.getWhoClicked() instanceof Player) {
+                if(event.getInventory().equals(event.getClickedInventory())) {
                     if(event.getCurrentItem() != null) {
                         GuiInventoryHolder inventory = (GuiInventoryHolder) event.getInventory().getHolder();
                         GuiItem item = inventory.getItem(event.getSlot());
