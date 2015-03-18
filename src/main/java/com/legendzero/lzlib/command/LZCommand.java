@@ -78,7 +78,7 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
     public abstract String name();
 
     public String getFullName() {
-        return (this.getParent() == null ? "/" : "") + this.name();
+        return (this.getParent() == null ? "/" : " ") + this.name();
     }
 
     public abstract String[] aliases();
