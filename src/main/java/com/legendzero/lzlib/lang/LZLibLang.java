@@ -28,8 +28,6 @@ import static org.bukkit.ChatColor.*;
 
 public enum LZLibLang implements Lang {
 
-    LOAD_SERIALIZABLES("load.serializables", "Loading configuration serializables"),
-    LOAD_CONFIGURATION("load.configuration", "Loading configuration"),
     COMMAND_LOAD("command.load", "Loading %s"),
     COMMAND_REGISTER_SUCCESS("command.register.success", "Registered %s to Bukkit."),
     COMMAND_REGISTER_FAILURE("command.register.failure", "Failed to register %s to Bukkit."),
