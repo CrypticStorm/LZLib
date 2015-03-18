@@ -25,7 +25,8 @@ package com.legendzero.lzlib.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-public interface GuiHandler {
-    
+@FunctionalInterface
+public interface GuiClickHandler {
+
     void onClick(Player player, ClickType clickType);
 }

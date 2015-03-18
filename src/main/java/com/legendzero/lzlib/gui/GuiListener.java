@@ -41,16 +41,12 @@ public class GuiListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if(event.getInventory().getHolder() instanceof GuiInventoryHolder) {
             GuiInventoryHolder inventory = (GuiInventoryHolder) event.getInventory().getHolder();
-            if (this.plugin.equals(inventory.getPlugin()))
-            event.setCancelled(true);
-            if(event.getWhoClicked() instanceof Player) {
-                if(event.getInventory().equals(event.getClickedInventory())) {
-                    if(event.getCurrentItem() != null) {
-                        GuiItem item = inventory.getItem(event.getSlot());
-                        if(item != null){
-                            GuiHandler handler = item.getGuiHandler();
-                            handler.onClick((Player) event.getWhoClicked(), event.getClick());
-                        }
+            if (this.plugin.equals(inventory.getPlugin())) {
+                event.setCancelled(true);
+                if (event.getInventory().equals(event.getClickedInventory()) && event.getCurrentItem() != null) {
+                    GuiItem item = inventory.getGuiContents().getGuiItem(event.getSlot());
+                    if (item != null && event.getWhoClicked() instanceof Player) {
+                        item.onClick((Player) event.getWhoClicked(), event.getClick());
                     }
                 }
             }

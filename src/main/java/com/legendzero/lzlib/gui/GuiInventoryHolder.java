@@ -23,76 +23,45 @@
 package com.legendzero.lzlib.gui;
 
 import com.legendzero.lzlib.util.Listeners;
-import org.bukkit.Bukkit;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 
 public class GuiInventoryHolder implements InventoryHolder {
 
-    private final Plugin plugin;
-    private final String name;
-    private final InventoryType type;
-    private final GuiItem[] items;
+    private final GuiContents guiContents;
     private final Inventory inventory;
 
-    public GuiInventoryHolder(Plugin plugin, String name, InventoryType type, int rows) {
-        this.plugin = plugin;
-        this.name = name;
-        this.type = type;
-        if (this.type == null || this.type == InventoryType.CHEST){
-            this.inventory = Bukkit.createInventory(this, 9*rows, this.name);
-            this.items = new GuiItem[this.inventory.getSize()];
+    public GuiInventoryHolder(GuiContents guiContents, Player player) {
+        this.guiContents = guiContents;
+        if (this.guiContents.getType() == null) {
+            this.inventory = this.guiContents.getPlugin().getServer()
+                    .createInventory(this, this.guiContents.getSize(),
+                            this.guiContents.getName());
         } else {
-            this.inventory = Bukkit.createInventory(this, this.type);
-            this.items = new GuiItem[this.inventory.getSize()];
+            this.inventory = this.guiContents.getPlugin().getServer()
+                    .createInventory(this, this.guiContents.getType(),
+                            this.guiContents.getName());
         }
+        this.guiContents.update(this.inventory, player);
 
-        if (!Listeners.isRegistered(plugin, GuiListener.class)) {
-            Listeners.register(plugin, new GuiListener(plugin));
+        if (!Listeners.isRegistered(this.guiContents.getPlugin(), GuiListener.class)) {
+            Listeners.register(this.guiContents.getPlugin(),
+                    new GuiListener(this.guiContents.getPlugin()));
         }
     }
 
     public Plugin getPlugin() {
-        return this.plugin;
+        return this.guiContents.getPlugin();
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public InventoryType getType(){
-        return this.type;
-    }
-
-    public int getSize() {
-        return this.items.length;
-    }
-
-    public GuiItem[] getItems() {
-        return this.items;
+    public GuiContents getGuiContents() {
+        return this.guiContents;
     }
 
     @Override
     public Inventory getInventory() {
-        Inventory inv;
-        if(this.type == null || this.type == InventoryType.CHEST){
-            inv = Bukkit.createInventory(this, this.items.length, this.name);
-        }else {
-            inv = Bukkit.createInventory(this, this.type);
-        }
-        inv.setContents(this.inventory.getContents());
-        return inv;
+        return this.inventory;
     }
-
-    public GuiItem getItem(int slot) {
-        return this.items[slot];
-    }
-
-    public void setItem(int slot, GuiItem item) {
-        this.items[slot] = item;
-        this.inventory.setItem(slot, item.getItemStack());
-    }
-
 }

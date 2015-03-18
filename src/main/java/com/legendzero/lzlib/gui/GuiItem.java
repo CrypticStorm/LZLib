@@ -22,11 +22,10 @@
 
 package com.legendzero.lzlib.gui;
 
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface GuiItem {
+public interface GuiItem extends GuiClickHandler {
     
-    public ItemStack getItemStack();
-    
-    public GuiHandler getGuiHandler();
+    public ItemStack getItemStack(Player player);
 }
