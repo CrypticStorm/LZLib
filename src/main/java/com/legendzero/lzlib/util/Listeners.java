@@ -20,24 +20,32 @@
  * THE SOFTWARE.
  */
 
-package com.legendzero.lzlib.listener;
+package com.legendzero.lzlib.util;
 
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 
-public interface LZListener extends Listener {
+public final class Listeners {
 
-    default boolean register(Plugin plugin) {
-        if (!HandlerList.getRegisteredListeners(plugin).stream().map(RegisteredListener::getListener).filter(l -> l != this).findAny().isPresent()) {
-            plugin.getServer().getPluginManager().registerEvents(this, plugin);
-            return true;
-        }
-        return false;
+    private Listeners() {}
+
+    public static void register(Plugin plugin, Listener listener) {
+        plugin.getServer().getPluginManager().registerEvents(listener, plugin);
     }
 
-    default void unregister() {
-        HandlerList.unregisterAll(this);
+    public static void unregister(Listener listener) {
+        HandlerList.unregisterAll(listener);
+    }
+
+    public static void unregister(Plugin plugin) {
+        HandlerList.unregisterAll(plugin);
+    }
+
+    public static boolean isRegistered(Plugin plugin, Class<? extends Listener> clazz) {
+        return HandlerList.getRegisteredListeners(plugin).stream()
+                .map(RegisteredListener::getListener)
+                .filter(clazz::isInstance).findAny().isPresent();
     }
 }

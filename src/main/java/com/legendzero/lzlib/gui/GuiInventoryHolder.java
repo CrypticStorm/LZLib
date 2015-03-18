@@ -22,28 +22,40 @@
 
 package com.legendzero.lzlib.gui;
 
+import com.legendzero.lzlib.util.Listeners;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.plugin.Plugin;
 
 public class GuiInventoryHolder implements InventoryHolder {
 
+    private final Plugin plugin;
     private final String name;
     private final InventoryType type;
     private final GuiItem[] items;
     private final Inventory inventory;
 
-    public GuiInventoryHolder(String name, InventoryType type, int rows) {
+    public GuiInventoryHolder(Plugin plugin, String name, InventoryType type, int rows) {
+        this.plugin = plugin;
         this.name = name;
         this.type = type;
-        if(this.type == null || this.type == InventoryType.CHEST){
-            this.items = new GuiItem[9*rows];
-            this.inventory = Bukkit.createInventory(this, this.items.length, this.name);
+        if (this.type == null || this.type == InventoryType.CHEST){
+            this.inventory = Bukkit.createInventory(this, 9*rows, this.name);
+            this.items = new GuiItem[this.inventory.getSize()];
         } else {
-            this.items = new GuiItem[9];
             this.inventory = Bukkit.createInventory(this, this.type);
+            this.items = new GuiItem[this.inventory.getSize()];
         }
+
+        if (!Listeners.isRegistered(plugin, GuiListener.class)) {
+            Listeners.register(plugin, new GuiListener(plugin));
+        }
+    }
+
+    public Plugin getPlugin() {
+        return this.plugin;
     }
 
     public String getName() {

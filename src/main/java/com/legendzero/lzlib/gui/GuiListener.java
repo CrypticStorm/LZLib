@@ -22,40 +22,29 @@
 
 package com.legendzero.lzlib.gui;
 
-import com.legendzero.lzlib.service.Service;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.Plugin;
 
-public class GuiService implements Listener, Service {
+public class GuiListener implements Listener {
 
     private final Plugin plugin;
 
-    public GuiService(Plugin plugin) {
+    public GuiListener(Plugin plugin) {
         this.plugin = plugin;
-    }
-
-    @Override
-    public void initialize() {
-        this.plugin.getServer().getPluginManager().registerEvents(this, this.plugin);
-    }
-
-    @Override
-    public void uninitialize() {
-        HandlerList.unregisterAll(this);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if(event.getInventory().getHolder() instanceof GuiInventoryHolder) {
+            GuiInventoryHolder inventory = (GuiInventoryHolder) event.getInventory().getHolder();
+            if (this.plugin.equals(inventory.getPlugin()))
             event.setCancelled(true);
             if(event.getWhoClicked() instanceof Player) {
                 if(event.getInventory().equals(event.getClickedInventory())) {
                     if(event.getCurrentItem() != null) {
-                        GuiInventoryHolder inventory = (GuiInventoryHolder) event.getInventory().getHolder();
                         GuiItem item = inventory.getItem(event.getSlot());
                         if(item != null){
                             GuiHandler handler = item.getGuiHandler();
