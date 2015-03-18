@@ -22,6 +22,7 @@
 
 package com.legendzero.lzlib.lang;
 
+import com.legendzero.lzlib.config.Config;
 import com.legendzero.lzlib.data.FileData;
 import static org.bukkit.ChatColor.*;
 
@@ -49,6 +50,10 @@ public enum LZLibLang implements Lang {
     FORMAT("format", GOLD + "[" +RED + "LZLib" +
             GOLD + "]" + RESET)
     ;
+
+    static {
+        Config.register(LZLibLang.class);
+    }
 
     private final String path;
     private final String def;

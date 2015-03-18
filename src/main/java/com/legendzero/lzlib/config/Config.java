@@ -105,7 +105,7 @@ public interface Config<E extends Data> {
             if (registrant.isAnnotationPresent(PluginClass.class)) {
                 Plugin plugin = getPlugin(registrant);
 
-                File file = new File(plugin.getDataFolder(), "config.yml");
+                File file = new File(plugin.getDataFolder(), registrant.getSimpleName().toLowerCase() + ".yml");
 
                 if (registrant.isAnnotationPresent(FilePath.class)) {
                     String path = getPath(registrant);
@@ -136,7 +136,7 @@ public interface Config<E extends Data> {
     }
 
     static String getIdentifier(Class<?> clazz) {
-        String identifier = clazz.getName();
+        String identifier = clazz.getSimpleName();
 
         if (clazz.isAnnotationPresent(Identifier.class)) {
             identifier = clazz.getAnnotation(Identifier.class).value();
