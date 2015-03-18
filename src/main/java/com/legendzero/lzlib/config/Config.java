@@ -22,22 +22,18 @@
 
 package com.legendzero.lzlib.config;
 
-import com.legendzero.lzlib.annotation.FilePath;
-import com.legendzero.lzlib.annotation.Identifier;
-import com.legendzero.lzlib.annotation.PluginClass;
 import com.legendzero.lzlib.data.Data;
 import com.legendzero.lzlib.data.FileData;
 import com.legendzero.lzlib.data.YamlData;
+import com.legendzero.lzlib.event.ConfigRegisterEvent;
 import com.legendzero.lzlib.lang.LZLibLang;
+import com.legendzero.lzlib.util.Reflections;
 import org.apache.commons.lang.ClassUtils;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.AnnotatedElement;
 import java.util.logging.Level;
-import java.util.regex.Matcher;
 
 public interface Config<E extends Data> {
 
@@ -99,57 +95,36 @@ public interface Config<E extends Data> {
     }
 
     static <T extends Enum & FileConfig> void register(Class<T> registrant) {
-        String identifier = getIdentifier(registrant);
+        Plugin plugin = Reflections.getPlugin(registrant);
+        if (plugin == null) {
+            throw new IllegalArgumentException(registrant.getName() +
+                    " not provided by Plugin or annotated with a Plugin provided class");
+        }
+        String identifier = Reflections.getIdentifier(registrant);
+        String path = Reflections.getPath(registrant);
 
-        if (registrant.isAnnotationPresent(PluginClass.class)) {
-            Plugin plugin = getPlugin(registrant);
+        File file = new File(plugin.getDataFolder(), path);
 
-            String path = Config.getPath(registrant);
-            File file = new File(plugin.getDataFolder(), path);
+        if (file.mkdirs()) {
+            LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getParentFile().getAbsolutePath());
+        }
 
-            if (file.mkdirs()) {
-                LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getParentFile().getAbsolutePath());
+        try {
+            if (file.createNewFile()) {
+                LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getName());
             }
+        } catch (IOException e) {
+            LZLibLang.FILE_CREATE_FAILURE.log(plugin.getLogger(), Level.WARNING, file.getName());
+        }
 
-            try {
-                if (file.createNewFile()) {
-                    LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getName());
-                }
-            } catch (IOException e) {
-                LZLibLang.FILE_CREATE_FAILURE.log(plugin.getLogger(), Level.WARNING, file.getName());
-            }
-
-            FileData data = new YamlData(identifier, file);
-            for (FileConfig config : registrant.getEnumConstants()) {
-                config.setData(data);
-                if (!config.isSet()) {
-                    config.setDefault();
-                }
+        FileData data = new YamlData(identifier, file);
+        for (FileConfig config : registrant.getEnumConstants()) {
+            config.setData(data);
+            if (!config.isSet()) {
+                config.setDefault();
             }
         }
-    }
 
-    static String getIdentifier(Class<?> clazz) {
-        String identifier = clazz.getSimpleName();
-
-        if (clazz.isAnnotationPresent(Identifier.class)) {
-            identifier = clazz.getAnnotation(Identifier.class).value();
-        }
-        return identifier;
-    }
-
-    static String getPath(Class<?> clazz) {
-        String path = clazz.getSimpleName();
-        if (clazz.isAnnotationPresent(FilePath.class)) {
-            FilePath annotation = clazz.getAnnotation(FilePath.class);
-            path = annotation.value().replaceAll("[/\\\\]+",
-                    Matcher.quoteReplacement(System.getProperty("file.separator")));
-        }
-        return path;
-    }
-
-    static Plugin getPlugin(AnnotatedElement element) {
-        PluginClass annotation = element.getAnnotation(PluginClass.class);
-        return JavaPlugin.getPlugin(annotation.value());
+        plugin.getServer().getPluginManager().callEvent(new ConfigRegisterEvent(registrant));
     }
 }

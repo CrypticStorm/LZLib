@@ -40,8 +40,12 @@ public class ConfigCommand extends LZCommand {
     private final ConfigMap configMap;
 
     public ConfigCommand(Plugin plugin, LZCommand parent) {
+        this(plugin, parent, false);
+    }
+
+    public ConfigCommand(Plugin plugin, LZCommand parent, boolean autoDetect) {
         super(plugin, parent);
-        this.configMap = new ConfigMap();
+        this.configMap = new ConfigMap(plugin, autoDetect);
     }
 
     @Override

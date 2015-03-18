@@ -25,16 +25,27 @@ package com.legendzero.lzlib.command;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.legendzero.lzlib.config.Config;
-import com.legendzero.lzlib.service.Service;
+import com.legendzero.lzlib.event.ConfigRegisterEvent;
+import com.legendzero.lzlib.util.Reflections;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Map;
 
-public class ConfigMap implements Service {
+public class ConfigMap {
 
     private final Map<String, Class<? extends Config>> configMap;
 
-    public ConfigMap() {
+    public ConfigMap(Plugin plugin) {
+        this(plugin, false);
+    }
+
+    public ConfigMap(Plugin plugin, boolean autoDetect) {
         this.configMap = Maps.newHashMap();
+        if (autoDetect) {
+            plugin.getServer().getPluginManager().registerEvents(new ConfigListener(), plugin);
+        }
     }
 
     public Map<String, Class<? extends Config>> getConfigMap() {
@@ -42,18 +53,18 @@ public class ConfigMap implements Service {
     }
 
     public void register(Class<? extends Config> clazz) {
-        this.register(Config.getIdentifier(clazz), clazz);
+        this.register(Reflections.getIdentifier(clazz), clazz);
     }
 
     public void register(String identifier, Class<? extends Config> clazz) {
         this.configMap.putIfAbsent(identifier, clazz);
     }
 
-    @Override
-    public void initialize() {
-    }
+    private class ConfigListener implements Listener {
 
-    @Override
-    public void uninitialize() {
+        @EventHandler
+        public void onConfigRegister(ConfigRegisterEvent event) {
+            ConfigMap.this.register(event.getConfigClass());
+        }
     }
 }
