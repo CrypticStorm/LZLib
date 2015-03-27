@@ -27,5 +27,5 @@ import org.bukkit.inventory.ItemStack;
 
 public interface GuiItem extends GuiClickHandler {
     
-    public ItemStack getItemStack(Player player);
+    ItemStack getItemStack(Player player);
 }
