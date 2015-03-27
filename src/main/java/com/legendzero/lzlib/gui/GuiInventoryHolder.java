@@ -67,9 +67,10 @@ public class GuiInventoryHolder implements InventoryHolder {
     }
 
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getInventory().equals(event.getClickedInventory()) && event.getCurrentItem() != null) {
-            GuiItem item = this.getGuiContents().getGuiItem(event.getSlot());
-            if (item != null && event.getWhoClicked() instanceof Player) {
+        if (event.getInventory().equals(event.getClickedInventory()) &&
+                event.getCurrentItem() != null) {
+            GuiItem item = this.guiContents.getGuiItem(event.getSlot());
+            if (item != null) {
                 item.onClick(event);
             }
         }
