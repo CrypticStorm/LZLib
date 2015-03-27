@@ -33,6 +33,4 @@ public interface Data<T> {
     void setIdentifier(String identifier);
 
     boolean save();
-
-    boolean save(T storage);
 }

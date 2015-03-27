@@ -33,4 +33,6 @@ public interface FileData extends Data<File> {
     boolean isSet(String path);
 
     void set(String path, Object value);
+
+    boolean save(File target);
 }
