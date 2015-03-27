@@ -46,7 +46,7 @@ public class GuiListener implements Listener {
                 if (event.getInventory().equals(event.getClickedInventory()) && event.getCurrentItem() != null) {
                     GuiItem item = inventory.getGuiContents().getGuiItem(event.getSlot());
                     if (item != null && event.getWhoClicked() instanceof Player) {
-                        item.onClick((Player) event.getWhoClicked(), event.getClick());
+                        item.onClick(event);
                     }
                 }
             }

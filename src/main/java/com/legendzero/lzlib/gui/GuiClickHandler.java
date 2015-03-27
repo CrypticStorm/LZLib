@@ -22,11 +22,10 @@
 
 package com.legendzero.lzlib.gui;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
 @FunctionalInterface
 public interface GuiClickHandler {
 
-    void onClick(Player player, ClickType clickType);
+    void onClick(InventoryClickEvent event);
 }
