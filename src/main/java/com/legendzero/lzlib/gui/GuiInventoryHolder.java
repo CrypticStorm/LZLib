@@ -24,6 +24,7 @@ package com.legendzero.lzlib.gui;
 
 import com.legendzero.lzlib.util.Listeners;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
@@ -63,5 +64,15 @@ public class GuiInventoryHolder implements InventoryHolder {
     @Override
     public Inventory getInventory() {
         return this.inventory;
+    }
+
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (event.getInventory().equals(event.getClickedInventory()) && event.getCurrentItem() != null) {
+            GuiItem item = this.getGuiContents().getGuiItem(event.getSlot());
+            if (item != null && event.getWhoClicked() instanceof Player) {
+                item.onClick(event);
+            }
+        }
+
     }
 }
