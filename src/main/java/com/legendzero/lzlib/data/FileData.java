@@ -26,6 +26,8 @@ import java.io.File;
 
 public interface FileData extends Data<File> {
 
+    void setStorage(File storage);
+
     Object get(String path);
 
     Object get(String path, Object def);

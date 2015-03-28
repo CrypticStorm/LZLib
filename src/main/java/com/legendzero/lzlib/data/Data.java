@@ -26,8 +26,6 @@ public interface Data<T> {
 
     T getStorage();
 
-    void setStorage(T storage);
-
     String getIdentifier();
 
     void setIdentifier(String identifier);
