@@ -23,11 +23,14 @@
 package com.legendzero.lzlib.gui;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+
+import java.util.function.Function;
 
 public class GuiContents {
 
@@ -36,7 +39,8 @@ public class GuiContents {
     private final String name;
     private final int size;
     private GuiContents parent;
-    private GuiItem[] contents;
+    private final GuiItem[] itemStackFunctions;
+    private final GuiClickHandler[] clickHandlers;
 
     public GuiContents(Plugin plugin, InventoryType type, String name, int size) {
         this.plugin = plugin;
@@ -44,7 +48,8 @@ public class GuiContents {
         this.name = name;
         this.size = size;
         this.parent = null;
-        this.contents = new GuiItem[this.size];
+        this.itemStackFunctions = new GuiItem[this.size];
+        this.clickHandlers = new GuiClickHandler[this.size];
     }
 
     public Plugin getPlugin() {
@@ -67,18 +72,18 @@ public class GuiContents {
         return this.parent;
     }
 
-    public GuiItem[] getContents() {
-        return this.contents;
+    public boolean hasItem(int slot) {
+        return this.itemStackFunctions[slot] != null;
     }
 
-    public GuiItem getGuiItem(int slot) {
-        return this.contents[slot];
+    public boolean hasAction(int slot) {
+        return this.clickHandlers[slot] != null;
     }
 
     public ItemStack[] getItems(Player player) {
         ItemStack[] contents = new ItemStack[this.size];
         for (int i = 0; i < this.size; i++) {
-            contents[i] = this.contents[i].getItemStack(player);
+            contents[i] = this.itemStackFunctions[i].apply(player);
         }
         return contents;
     }
@@ -87,18 +92,33 @@ public class GuiContents {
         this.parent = parent;
     }
 
-    public void setGuiItem(int slot, GuiItem item) {
-        this.contents[slot] = item;
+    public void set(int slot, GuiItem item) {
+        this.itemStackFunctions[slot] = item;
+    }
+
+    public void set(int slot, GuiClickHandler clickHandler) {
+        this.clickHandlers[slot] = clickHandler;
+    }
+
+    public void set(int slot, GuiItem item, GuiClickHandler clickHandler) {
+        this.set(slot, item);
+        this.set(slot, clickHandler);
     }
 
     public void fillEmpty(GuiItem item) {
         for (int i = 0; i < this.size; i++) {
-            if (this.contents[i] == null) {
-                this.contents[i] = item;
+            if (this.itemStackFunctions[i] == null) {
+                this.itemStackFunctions[i] = item;
             }
         }
     }
 
+    public void onClick(InventoryClickEvent event) {
+        GuiClickHandler clickHandler = this.clickHandlers[event.getSlot()];
+        if (clickHandler != null) {
+            clickHandler.accept(event);
+        }
+    }
     public void open(Player player) {
         InventoryHolder inventoryHolder = new GuiInventoryHolder(this, player);
         Inventory inventory = inventoryHolder.getInventory();

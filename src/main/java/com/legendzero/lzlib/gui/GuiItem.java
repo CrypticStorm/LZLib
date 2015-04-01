@@ -25,7 +25,7 @@ package com.legendzero.lzlib.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface GuiItem extends GuiClickHandler {
-    
-    ItemStack getItemStack(Player player);
+import java.util.function.Function;
+
+public interface GuiItem extends Function<Player, ItemStack> {
 }

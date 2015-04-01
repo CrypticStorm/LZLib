@@ -22,10 +22,25 @@
 
 package com.legendzero.lzlib.gui;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-@FunctionalInterface
-public interface GuiClickHandler {
+import java.util.Arrays;
+import java.util.function.Consumer;
 
-    void onClick(InventoryClickEvent event);
+public interface GuiClickHandler extends Consumer<InventoryClickEvent> {
+
+    static GuiClickHandler performCommands(String... commands) {
+        return event -> Arrays.stream(commands).forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+    }
+
+    static GuiClickHandler performLRCommands(String[] leftCommands, String[] rightCommands) {
+        return event -> {
+            if (event.getClick().isLeftClick()) {
+                Arrays.stream(leftCommands).forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+            } else if (event.getClick().isRightClick()) {
+                Arrays.stream(rightCommands).forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+            }
+        };
+    }
 }
