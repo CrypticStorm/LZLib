@@ -99,9 +99,9 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
 
     public abstract String description();
 
-    protected abstract String usage();
+    public abstract String usage();
 
-    protected abstract Permission permission();
+    public abstract Permission permission();
 
     public final Collection<LZCommand> getSubCommands() {
         return ImmutableSet.copyOf(this.subCommandMap.values());
