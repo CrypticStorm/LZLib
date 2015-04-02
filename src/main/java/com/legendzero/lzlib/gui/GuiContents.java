@@ -30,6 +30,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class GuiContents {
@@ -38,18 +39,24 @@ public class GuiContents {
     private final InventoryType type;
     private final String name;
     private final int size;
+    private final Consumer<? super Player> consumer;
     private GuiContents parent;
     private final GuiItem[] itemStackFunctions;
     private final GuiClickHandler[] clickHandlers;
 
-    public GuiContents(Plugin plugin, InventoryType type, String name, int size) {
+    public GuiContents(Plugin plugin, InventoryType type, String name, int size, Consumer<? super Player> consumer) {
         this.plugin = plugin;
         this.type = type;
         this.name = name;
         this.size = size;
+        this.consumer = consumer;
         this.parent = null;
         this.itemStackFunctions = new GuiItem[this.size];
         this.clickHandlers = new GuiClickHandler[this.size];
+    }
+
+    public GuiContents(Plugin plugin, InventoryType type, String name, int size) {
+        this(plugin, type, name, size, null);
     }
 
     public Plugin getPlugin() {
@@ -66,6 +73,10 @@ public class GuiContents {
 
     public int getSize() {
         return this.size;
+    }
+
+    public Consumer<? super Player> getConsumer() {
+        return this.consumer;
     }
 
     public GuiContents getParent() {
@@ -119,6 +130,7 @@ public class GuiContents {
             clickHandler.accept(event);
         }
     }
+
     public void open(Player player) {
         InventoryHolder inventoryHolder = new GuiInventoryHolder(this, player);
         Inventory inventory = inventoryHolder.getInventory();
@@ -126,6 +138,7 @@ public class GuiContents {
     }
 
     public void update(Inventory inventory, Player player) {
+        this.consumer.accept(player);
         inventory.setContents(this.getItems(player));
     }
 
