@@ -47,13 +47,13 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
+public abstract class LZCommand<T extends Plugin> implements TabExecutor, Comparable<LZCommand<?>> {
 
-    private final Plugin plugin;
-    private final LZCommand parent;
-    private final Map<String, LZCommand> subCommandMap;
+    private final T plugin;
+    private final LZCommand<?> parent;
+    private final Map<String, LZCommand<?>> subCommandMap;
 
-    public LZCommand(Plugin plugin, LZCommand parent) {
+    public LZCommand(T plugin, LZCommand<?> parent) {
         this.plugin = plugin;
         this.parent = parent;
         this.subCommandMap = Maps.newHashMap();
@@ -68,15 +68,15 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
         }
     }
 
-    public LZCommand(Plugin plugin) {
+    public LZCommand(T plugin) {
         this(plugin, null);
     }
 
-    public final Plugin getPlugin() {
+    public final T getPlugin() {
         return this.plugin;
     }
 
-    public final LZCommand getParent() {
+    public final LZCommand<?> getParent() {
         return this.parent;
     }
 
@@ -94,20 +94,20 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
 
     public abstract Permission permission();
 
-    public final Collection<LZCommand> getSubCommands() {
+    public final Collection<LZCommand<?>> getSubCommands() {
         return ImmutableSet.copyOf(this.subCommandMap.values());
     }
 
-    public final Collection<LZCommand> getPermissibleSubCommands(Permissible permissible) {
+    public final Collection<LZCommand<?>> getPermissibleSubCommands(Permissible permissible) {
         return this.subCommandMap.values().stream().filter(cmd -> permissible.hasPermission(cmd.permission())).collect(Collectors.toSet());
     }
 
-    public LZCommand getSubCommand(String alias) {
+    public LZCommand<?> getSubCommand(String alias) {
         return this.getSubCommand(null, alias);
     }
 
-    public LZCommand getSubCommand(Permissible permissible, String alias) {
-        LZCommand command = this.subCommandMap.get(alias.toLowerCase());
+    public LZCommand<?> getSubCommand(Permissible permissible, String alias) {
+        LZCommand<?> command = this.subCommandMap.get(alias.toLowerCase());
         if (permissible == null) {
             return command;
         } else {
@@ -130,7 +130,7 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
     }
 
     @Override
-    public int compareTo(LZCommand other) {
+    public int compareTo(LZCommand<?> other) {
         return this.name().compareToIgnoreCase(other.name());
     }
 
@@ -183,20 +183,16 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
         return this.getPermissibleSubCommands(sender).stream().map(LZCommand::name).collect(Collectors.toList());
     }
 
-    public void registerSubCommand(LZCommand... commands) {
+    public void registerSubCommand(LZCommand<?>... commands) {
         Arrays.stream(commands).forEach(this::registerSubCommand);
     }
 
-    public void registerSubCommand(LZCommand command) {
+    public void registerSubCommand(LZCommand<?> command) {
         this.registerAlias(command.name(), command);
         Arrays.stream(command.aliases()).forEach(alias -> registerAlias(alias, command));
     }
 
-    public void registerAlias(String alias, LZCommand... commands) {
-        Arrays.stream(commands).forEach(cmd -> this.registerAlias(alias, cmd));
-    }
-
-    private void registerAlias(String alias, LZCommand command) {
+    private void registerAlias(String alias, LZCommand<?> command) {
         this.subCommandMap.putIfAbsent(alias, command);
     }
 
