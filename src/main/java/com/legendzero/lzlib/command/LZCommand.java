@@ -54,8 +54,7 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
     private final Map<String, LZCommand> subCommandMap;
 
     public LZCommand(Plugin plugin, LZCommand parent) {
-        this.plugin = plugin == null ?
-                Reflections.getProvidingPlugin(this.getClass()) : plugin;
+        this.plugin = plugin;
         this.parent = parent;
         this.subCommandMap = Maps.newHashMap();
 
@@ -71,14 +70,6 @@ public abstract class LZCommand implements TabExecutor, Comparable<LZCommand> {
 
     public LZCommand(Plugin plugin) {
         this(plugin, null);
-    }
-
-    public LZCommand(LZCommand parent) {
-        this(null, parent);
-    }
-
-    public LZCommand() {
-        this(null, null);
     }
 
     public final Plugin getPlugin() {
