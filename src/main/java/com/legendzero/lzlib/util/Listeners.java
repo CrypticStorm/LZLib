@@ -35,6 +35,11 @@ public final class Listeners {
         plugin.getServer().getPluginManager().registerEvents(listener, plugin);
     }
 
+    public static void register(Listener listener) {
+        Plugin plugin = Reflections.getProvidingPlugin(listener.getClass());
+        register(plugin, listener);
+    }
+
     public static void unregister(Listener listener) {
         HandlerList.unregisterAll(listener);
     }
