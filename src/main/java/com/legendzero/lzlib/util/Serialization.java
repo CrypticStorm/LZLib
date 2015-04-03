@@ -27,11 +27,11 @@ public final class Serialization {
         serializables.forEachRemaining(Serialization::serialize);
     }
 
-    public static void deserialize(Map<String, Object> args) {
-        ConfigurationSerialization.deserializeObject(args);
+    public static ConfigurationSerializable deserialize(Map<String, Object> args) {
+        return ConfigurationSerialization.deserializeObject(args);
     }
 
-    public static void deserializeAs(Map<String, Object> args, Class<? extends ConfigurationSerializable> serializable) {
-        ConfigurationSerialization.deserializeObject(args, serializable);
+    public static ConfigurationSerializable deserializeAs(Map<String, Object> args, Class<? extends ConfigurationSerializable> serializable) {
+        return ConfigurationSerialization.deserializeObject(args, serializable);
     }
 }
