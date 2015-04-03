@@ -35,15 +35,15 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-public class ConfigCommand extends LZCommand {
+public class ConfigCommand<T extends Plugin> extends LZCommand<T> {
 
     private final ConfigMap configMap;
 
-    public ConfigCommand(Plugin plugin, LZCommand parent) {
+    public ConfigCommand(T plugin, LZCommand<?> parent) {
         this(plugin, parent, false);
     }
 
-    public ConfigCommand(Plugin plugin, LZCommand parent, boolean autoDetect) {
+    public ConfigCommand(T plugin, LZCommand<?> parent, boolean autoDetect) {
         super(plugin, parent);
         this.configMap = new ConfigMap(plugin, autoDetect);
     }
