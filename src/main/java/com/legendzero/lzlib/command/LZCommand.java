@@ -35,11 +35,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -196,12 +192,11 @@ public abstract class LZCommand<T extends Plugin> implements TabExecutor, Compar
         this.subCommandMap.putIfAbsent(alias, command);
     }
 
-
     public final boolean registerToBukkit() {
         PluginCommand pluginCommand = this.plugin.getServer().getPluginCommand(this.name());
         if (pluginCommand == null) {
-            pluginCommand = this.getPluginCommand();
-            CommandMap commandMap = this.getCommandMap();
+            pluginCommand = Reflections.getPluginCommand(this);
+            CommandMap commandMap = Reflections.getCommandMap(this);
             if (pluginCommand == null || commandMap == null) {
                 return false;
             }
@@ -209,31 +204,5 @@ public abstract class LZCommand<T extends Plugin> implements TabExecutor, Compar
         }
         pluginCommand.setExecutor(this);
         return true;
-    }
-
-    private PluginCommand getPluginCommand() {
-        try {
-            Constructor<PluginCommand> c = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
-            c.setAccessible(true);
-            return c.newInstance(this.name(), this.getPlugin());
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-            this.getPlugin().getLogger().log(Level.SEVERE, "Error creating Bukkit command", e);
-            return null;
-        }
-    }
-
-    private CommandMap getCommandMap() {
-        PluginManager pluginManager = this.getPlugin().getServer().getPluginManager();
-        CommandMap cMap = null;
-
-        try {
-            Field f = pluginManager.getClass().getDeclaredField("commandMap");
-            f.setAccessible(true);
-
-            cMap = (CommandMap) f.get(pluginManager);
-        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-        }
-
-        return cMap;
     }
 }
