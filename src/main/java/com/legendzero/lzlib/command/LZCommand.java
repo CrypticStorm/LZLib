@@ -147,31 +147,7 @@ public abstract class LZCommand<T extends Plugin> implements TabExecutor, Compar
     }
 
     protected boolean execute(CommandSender sender, List<String> args) {
-        String fullName = getFullName();
-        if (sender instanceof Player) {
-            Player.Spigot player = ((Player) sender).spigot();
-            BaseComponent[] title = new ComponentBuilder(
-                    "Command Help: " + fullName + "\n")
-                    .color(ChatColor.AQUA).underlined(true).create();
-            player.sendMessage(title);
-            this.getPermissibleSubCommands(sender).stream().sorted().forEach(
-                    command -> player.sendMessage(
-                            new ComponentBuilder("> ")
-                                    .color(ChatColor.YELLOW)
-                                    .bold(true)
-                                    .event(new ClickEvent(
-                                            ClickEvent.Action.RUN_COMMAND,
-                                            fullName))
-                                    .append(fullName)
-                                    .color(ChatColor.AQUA)
-                                    .event(new ClickEvent(
-                                            ClickEvent.Action.SUGGEST_COMMAND,
-                                            fullName))
-                                    .create()));
-        } else {
-            this.getPermissibleSubCommands(sender).stream().sorted().forEach(
-                    command -> sender.sendMessage(fullName));
-        }
+        this.showHelp(sender);
         return true;
     }
 
@@ -204,5 +180,33 @@ public abstract class LZCommand<T extends Plugin> implements TabExecutor, Compar
         }
         pluginCommand.setExecutor(this);
         return true;
+    }
+
+    protected void showHelp(CommandSender sender) {
+        String fullName = getFullName();
+        if (sender instanceof Player) {
+            Player.Spigot player = ((Player) sender).spigot();
+            BaseComponent[] title = new ComponentBuilder(
+                    "Command Help: " + fullName + "\n")
+                    .color(ChatColor.AQUA).underlined(true).create();
+            player.sendMessage(title);
+            this.getPermissibleSubCommands(sender).stream().sorted().forEach(
+                    command -> player.sendMessage(
+                            new ComponentBuilder("> ")
+                                    .color(ChatColor.YELLOW)
+                                    .bold(true)
+                                    .event(new ClickEvent(
+                                            ClickEvent.Action.RUN_COMMAND,
+                                            fullName))
+                                    .append(fullName)
+                                    .color(ChatColor.AQUA)
+                                    .event(new ClickEvent(
+                                            ClickEvent.Action.SUGGEST_COMMAND,
+                                            fullName))
+                                    .create()));
+        } else {
+            this.getPermissibleSubCommands(sender).stream().sorted().forEach(
+                    command -> sender.sendMessage(fullName));
+        }
     }
 }
