@@ -31,7 +31,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class GuiContents {
 
@@ -103,17 +102,17 @@ public class GuiContents {
         this.parent = parent;
     }
 
-    public void set(int slot, GuiItem item) {
+    public void setItem(int slot, GuiItem item) {
         this.itemStackFunctions[slot] = item;
     }
 
-    public void set(int slot, GuiClickHandler clickHandler) {
+    public void setClickHandler(int slot, GuiClickHandler clickHandler) {
         this.clickHandlers[slot] = clickHandler;
     }
 
     public void set(int slot, GuiItem item, GuiClickHandler clickHandler) {
-        this.set(slot, item);
-        this.set(slot, clickHandler);
+        this.setItem(slot, item);
+        this.setClickHandler(slot, clickHandler);
     }
 
     public void fillEmpty(GuiItem item) {
