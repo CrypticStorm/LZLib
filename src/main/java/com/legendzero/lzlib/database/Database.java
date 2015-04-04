@@ -1,13 +1,10 @@
 package com.legendzero.lzlib.database;
 
-import com.google.common.collect.Lists;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -84,15 +81,17 @@ public abstract class Database {
         }
     }
 
-    public void closeConnection() {
+    public boolean closeConnection() {
         if (this.connection != null) {
             try {
                 this.connection.close();
+                this.connection = null;
             } catch (SQLException e) {
                 this.logger.log(Level.SEVERE, "Error closing connection", e);
+                return false;
             }
-            this.connection = null;
         }
+        return true;
     }
 
     protected final PreparedStatement prepareStatement(String query) throws SQLException {

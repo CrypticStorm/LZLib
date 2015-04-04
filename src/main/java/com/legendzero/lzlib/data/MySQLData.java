@@ -14,10 +14,4 @@ public class MySQLData implements SQLData<MySQL> {
     public MySQL getStorage() {
         return this.mySQL;
     }
-
-    @Override
-    public boolean save() {
-        this.mySQL.closeConnection();
-        return true;
-    }
 }

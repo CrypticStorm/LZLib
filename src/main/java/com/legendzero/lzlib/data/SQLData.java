@@ -24,15 +24,11 @@ package com.legendzero.lzlib.data;
 
 import com.legendzero.lzlib.database.Database;
 import com.legendzero.lzlib.database.SQLQuery;
-import com.legendzero.lzlib.database.SQLQueryFunction;
 import com.legendzero.lzlib.database.SQLUpdate;
 
-import java.sql.ResultSet;
 import java.util.Collection;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collector;
 
 public interface SQLData<E extends Database> extends Data<E> {
@@ -45,6 +41,9 @@ public interface SQLData<E extends Database> extends Data<E> {
         this.getStorage().setIdentifier(identifier);
     }
 
+    default boolean save() {
+        return this.getStorage().closeConnection();
+    }
     default <T> T query(SQLQuery<T> query, Object... mapping) {
         return this.getStorage().query(query, mapping);
     }
