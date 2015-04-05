@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.function.Consumer;
 
 public interface GuiClickHandler extends Consumer<InventoryClickEvent> {
@@ -34,12 +35,40 @@ public interface GuiClickHandler extends Consumer<InventoryClickEvent> {
         return event -> Arrays.stream(commands).forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
     }
 
+    static GuiClickHandler performCommands(Iterable<String> commands) {
+        return event -> commands.forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+    }
+
+    static GuiClickHandler performCommands(Iterator<String> commands) {
+        return event -> commands.forEachRemaining(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+    }
+
     static GuiClickHandler performLRCommands(String[] leftCommands, String[] rightCommands) {
         return event -> {
             if (event.getClick().isLeftClick()) {
                 Arrays.stream(leftCommands).forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
             } else if (event.getClick().isRightClick()) {
                 Arrays.stream(rightCommands).forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+            }
+        };
+    }
+
+    static GuiClickHandler performLRCommands(Iterable<String> leftCommands, Iterable<String> rightCommands) {
+        return event -> {
+            if (event.getClick().isLeftClick()) {
+                leftCommands.forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+            } else if (event.getClick().isRightClick()) {
+                rightCommands.forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+            }
+        };
+    }
+
+    static GuiClickHandler performLRCommands(Iterator<String> leftCommands, Iterator<String> rightCommands) {
+        return event -> {
+            if (event.getClick().isLeftClick()) {
+                leftCommands.forEachRemaining(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+            } else if (event.getClick().isRightClick()) {
+                rightCommands.forEachRemaining(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
             }
         };
     }
