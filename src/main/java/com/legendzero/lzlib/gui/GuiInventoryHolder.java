@@ -31,30 +31,31 @@ import org.bukkit.plugin.Plugin;
 
 public class GuiInventoryHolder implements InventoryHolder {
 
+    private final Plugin plugin;
     private final GuiContents guiContents;
     private final Inventory inventory;
 
-    public GuiInventoryHolder(GuiContents guiContents, Player player) {
+    public GuiInventoryHolder(Plugin plugin, GuiContents guiContents, Player player) {
+        this.plugin = plugin;
         this.guiContents = guiContents;
         if (this.guiContents.getType() == null) {
-            this.inventory = this.guiContents.getPlugin().getServer()
-                    .createInventory(this, this.guiContents.getSize(),
-                            this.guiContents.getName());
+            this.inventory = this.plugin.getServer().createInventory(
+                    this, this.guiContents.getSize(),
+                    this.guiContents.getName());
         } else {
-            this.inventory = this.guiContents.getPlugin().getServer()
-                    .createInventory(this, this.guiContents.getType(),
-                            this.guiContents.getName());
+            this.inventory = this.plugin.getServer().createInventory(
+                    this, this.guiContents.getType(),
+                    this.guiContents.getName());
         }
         this.guiContents.update(this.inventory, player);
 
-        if (!Listeners.isRegistered(this.guiContents.getPlugin(), GuiListener.class)) {
-            Listeners.register(this.guiContents.getPlugin(),
-                    new GuiListener(this.guiContents.getPlugin()));
+        if (!Listeners.isRegistered(this.plugin, GuiListener.class)) {
+            Listeners.register(this.plugin, new GuiListener(this.plugin));
         }
     }
 
     public Plugin getPlugin() {
-        return this.guiContents.getPlugin();
+        return this.plugin;
     }
 
     public GuiContents getGuiContents() {

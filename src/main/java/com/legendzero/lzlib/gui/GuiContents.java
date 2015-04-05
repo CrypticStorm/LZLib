@@ -28,13 +28,11 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
 
 public class GuiContents {
 
-    private final Plugin plugin;
     private final InventoryType type;
     private final String name;
     private final int size;
@@ -43,8 +41,7 @@ public class GuiContents {
     private final GuiItem[] itemStackFunctions;
     private final GuiClickHandler[] clickHandlers;
 
-    public GuiContents(Plugin plugin, InventoryType type, String name, int size, Consumer<? super Player> consumer) {
-        this.plugin = plugin;
+    public GuiContents(InventoryType type, String name, int size, Consumer<? super Player> consumer) {
         this.type = type;
         this.name = name;
         this.size = size;
@@ -54,12 +51,8 @@ public class GuiContents {
         this.clickHandlers = new GuiClickHandler[this.size];
     }
 
-    public GuiContents(Plugin plugin, InventoryType type, String name, int size) {
-        this(plugin, type, name, size, null);
-    }
-
-    public Plugin getPlugin() {
-        return this.plugin;
+    public GuiContents(InventoryType type, String name, int size) {
+        this(type, name, size, null);
     }
 
     public InventoryType getType() {

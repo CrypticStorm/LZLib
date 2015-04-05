@@ -22,7 +22,6 @@
 
 package com.legendzero.lzlib.gui;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -41,7 +40,7 @@ public class GuiListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if(event.getInventory().getHolder() instanceof GuiInventoryHolder) {
             GuiInventoryHolder inventory = (GuiInventoryHolder) event.getInventory().getHolder();
-            if (this.plugin.equals(inventory.getPlugin())) {
+            if (this.plugin.equals(inventory.getGuiContents().getPlugin())) {
                 event.setCancelled(true);
                 inventory.onInventoryClick(event);
             }
