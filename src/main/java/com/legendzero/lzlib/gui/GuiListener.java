@@ -40,7 +40,7 @@ public class GuiListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if(event.getInventory().getHolder() instanceof GuiInventoryHolder) {
             GuiInventoryHolder inventory = (GuiInventoryHolder) event.getInventory().getHolder();
-            if (this.plugin.equals(inventory.getGuiContents().getPlugin())) {
+            if (this.plugin.equals(inventory.getPlugin())) {
                 event.setCancelled(true);
                 inventory.onInventoryClick(event);
             }
