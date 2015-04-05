@@ -25,8 +25,6 @@ package com.legendzero.lzlib.gui;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Consumer;
@@ -121,26 +119,5 @@ public class GuiContents {
         if (clickHandler != null) {
             clickHandler.accept(event);
         }
-    }
-
-    public void open(Player player) {
-        InventoryHolder inventoryHolder = new GuiInventoryHolder(this, player);
-        Inventory inventory = inventoryHolder.getInventory();
-        player.openInventory(inventory);
-    }
-
-    public void update(Inventory inventory, Player player) {
-        this.consumer.accept(player);
-        inventory.setContents(this.getItems(player));
-    }
-
-    public void back(Player player) {
-        if (this.parent != null) {
-            this.parent.open(player);
-        }
-    }
-
-    public void close(Player player) {
-        player.closeInventory();
     }
 }
