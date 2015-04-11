@@ -42,6 +42,10 @@ public final class ItemStackBuilder implements Cloneable {
         return this.itemStack.clone();
     }
 
+    public ItemMeta getItemMeta() {
+        return this.itemStack.getItemMeta().clone();
+    }
+
     public ItemStackBuilder setType(Material material) {
         this.itemStack.setType(material);
         return this;
