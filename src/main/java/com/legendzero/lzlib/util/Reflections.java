@@ -36,6 +36,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 
@@ -123,8 +124,29 @@ public final class Reflections {
             return false;
         } else {
             Enchantment.registerEnchantment(enchantment);
+            Enchantment.stopAcceptingRegistrations();
             return true;
         }
+    }
 
+    public static void unregisterEnchantment(Enchantment enchantment) {
+        try {
+            Field byId = Enchantment.class.getDeclaredField("byId");
+            Field byName = Enchantment.class.getDeclaredField("byName");
+            byId.setAccessible(true);
+            byName.setAccessible(true);
+            Object idMap = byId.get(null);
+            Object nameMap = byName.get(null);
+            if (idMap instanceof Map) {
+                ((Map) idMap).remove(enchantment.getId(), enchantment);
+            }
+
+            if (nameMap instanceof Map) {
+                ((Map) nameMap).remove(enchantment.getName(), enchantment);
+            }
+        } catch (ClassCastException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            getProvidingPlugin(enchantment.getClass()).getLogger().log(Level.SEVERE, "Error unregistering Enchantment.");
+        }
+        Enchantment.stopAcceptingRegistrations();
     }
 }
