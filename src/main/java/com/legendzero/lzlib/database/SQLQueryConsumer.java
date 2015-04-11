@@ -1,18 +1,17 @@
 package com.legendzero.lzlib.database;
 
 import java.sql.ResultSet;
-import java.util.function.Consumer;
 
 public class SQLQueryConsumer extends SQLQuery<Void> {
 
-    private final Consumer<? super ResultSet> consumer;
+    private final SQLConsumer consumer;
 
     public SQLQueryConsumer(String query, SQLConsumer consumer) {
         super(query);
         this.consumer = consumer;
     }
 
-    public Consumer<? super ResultSet> getConsumer() {
+    public SQLConsumer getConsumer() {
         return this.consumer;
     }
 
@@ -20,5 +19,9 @@ public class SQLQueryConsumer extends SQLQuery<Void> {
     public Void apply(ResultSet resultSet) {
         this.consumer.accept(resultSet);
         return null;
+    }
+
+    public SQLQueryConsumer byRow() {
+        return new SQLQueryConsumer(this.getStatement(), this.getConsumer().byRow());
     }
 }
