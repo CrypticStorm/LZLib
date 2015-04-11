@@ -18,4 +18,12 @@ public interface SQLConsumer extends Consumer<ResultSet> {
             Logger.getLogger("SQLConsumer").log(Level.WARNING, "Error in SQLConsumer", e);
         }
     }
+
+    default SQLConsumer byRow() {
+        return rs -> {
+            while (rs.next()) {
+                SQLConsumer.this.acceptSilent(rs);
+            }
+        };
+    }
 }
