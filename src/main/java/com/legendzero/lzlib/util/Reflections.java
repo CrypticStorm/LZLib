@@ -28,6 +28,7 @@ import com.legendzero.lzlib.annotation.PluginClass;
 import com.legendzero.lzlib.command.LZCommand;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -105,5 +106,25 @@ public final class Reflections {
         }
 
         return cMap;
+    }
+
+    public static boolean registerEnchantment(Enchantment enchantment) {
+        if (!Enchantment.isAcceptingRegistrations()) {
+            try {
+                Field f = Enchantment.class.getDeclaredField("acceptingNew");
+                f.setAccessible(true);
+                f.set(null, true);
+            } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                getProvidingPlugin(enchantment.getClass()).getLogger().log(Level.SEVERE, "Error making Enchantments acceptable.");
+                return false;
+            }
+        }
+        if (Enchantment.getById(enchantment.getId()) != null) {
+            return false;
+        } else {
+            Enchantment.registerEnchantment(enchantment);
+            return true;
+        }
+
     }
 }
