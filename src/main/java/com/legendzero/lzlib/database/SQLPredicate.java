@@ -19,4 +19,8 @@ public interface SQLPredicate extends Predicate<ResultSet> {
         }
         return false;
     }
+
+    static SQLPredicate entryExists() {
+        return ResultSet::next;
+    }
 }
