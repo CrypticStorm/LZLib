@@ -27,7 +27,6 @@ import com.legendzero.lzlib.database.SQLBatch;
 import com.legendzero.lzlib.database.SQLQuery;
 import com.legendzero.lzlib.database.SQLUpdate;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 public interface SQLData<E extends Database> extends Data<E> {
@@ -60,7 +59,7 @@ public interface SQLData<E extends Database> extends Data<E> {
         return this.getStorage().batch(batch, iterator);
     }
 
-    default <T> int[] batch(SQLBatch<T> batch, T... values) {
+    default <T> int[] batch(SQLBatch<T> batch, T[] values) {
         return this.getStorage().batch(batch, values);
     }
 }

@@ -162,7 +162,7 @@ public abstract class Database {
         }
     }
 
-    public <T> int[] batch(SQLBatch<T> batch, T... values) {
+    public <T> int[] batch(SQLBatch<T> batch, T[] values) {
         List<Function<? super T, Object>> mappingFunctions = batch.getMappingFunctions();
         try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
             for (T object : values) {

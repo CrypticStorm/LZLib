@@ -32,7 +32,7 @@ public class SQLBatch<T> extends SQLStatement {
         return data.batch(this, iterator);
     }
 
-    public final int[] batch(SQLData<?> data, T... values) {
+    public final int[] batch(SQLData<?> data, T[] values) {
         return data.batch(this, values);
     }
 }
