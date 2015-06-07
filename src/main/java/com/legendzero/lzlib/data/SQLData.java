@@ -23,13 +23,12 @@
 package com.legendzero.lzlib.data;
 
 import com.legendzero.lzlib.database.Database;
+import com.legendzero.lzlib.database.SQLBatch;
 import com.legendzero.lzlib.database.SQLQuery;
 import com.legendzero.lzlib.database.SQLUpdate;
 
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collector;
 
 public interface SQLData<E extends Database> extends Data<E> {
 
@@ -44,23 +43,16 @@ public interface SQLData<E extends Database> extends Data<E> {
     default boolean save() {
         return this.getStorage().closeConnection();
     }
+
     default <T> T query(SQLQuery<T> query, Object... mapping) {
         return this.getStorage().query(query, mapping);
-    }
-
-    default <T, R extends Collection<T>> R queryByRow(SQLQuery<T> query, Collector<T, ?, R> collector, Object... mappings) {
-        return this.getStorage().queryByRow(query, collector, mappings);
-    }
-
-    default <T> void queryByRow(SQLQuery<T> query, Consumer<? super T> consumer, Object... mappings) {
-        this.getStorage().queryByRow(query, consumer, mappings);
     }
 
     default Integer update(SQLUpdate update, Object... mapping) {
         return this.getStorage().update(update, mapping);
     }
 
-    default <T> int[] batch(String statement, Collection<T> collection, Function<? super T, Object>... mappings) {
-        return this.getStorage().batch(statement, collection, mappings);
+    default <T> int[] batch(SQLBatch batch, Collection<T> collection, Function<? super T, Object>... mappings) {
+        return this.getStorage().batch(batch, collection, mappings);
     }
 }

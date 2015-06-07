@@ -5,12 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collector;
-import java.util.stream.Stream;
 
 public abstract class Database {
 
@@ -118,49 +115,6 @@ public abstract class Database {
         return null;
     }
 
-    public <T, R extends Collection<T>> R queryByRow(SQLQuery<T> query, Collector<T, ?, R> collector, Object... mappings) {
-        return this.query(this.getByRow(query, collector), mappings);
-    }
-
-    private <T, R extends Collection<T>> SQLQuery<R> getByRow(SQLQuery<T> query, Collector<T, ?, R> collector) {
-        return new SQLQuery<R>(query) {
-            @Override
-            public R apply(ResultSet resultSet) {
-                Stream.Builder<T> stream = Stream.builder();
-                try {
-                    while (resultSet.next()) {
-                        stream.add(query.apply(resultSet));
-                    }
-                } catch (SQLException e) {
-                    Database.this.logger.log(Level.WARNING, "Error querying database", e);
-                }
-                return stream.build().collect(collector);
-            }
-        };
-    }
-
-    public <T> void queryByRow(SQLQuery<T> query, Consumer<? super T> consumer, Object... mappings) {
-        this.query(this.getByRow(query, consumer), mappings);
-    }
-
-    private <T> SQLQuery<Void> getByRow(SQLQuery<T> query, Consumer<? super T> consumer) {
-        return new SQLQuery<Void>(query) {
-            @Override
-            public Void apply(ResultSet resultSet) {
-                Stream.Builder<T> stream = Stream.builder();
-                try {
-                    while (resultSet.next()) {
-                        stream.add(query.apply(resultSet));
-                    }
-                } catch (SQLException e) {
-                    Database.this.logger.log(Level.WARNING, "Error querying database", e);
-                }
-                stream.build().forEach(consumer);
-                return null;
-            }
-        };
-    }
-
     public Integer update(SQLUpdate update, Object... mapping) {
         try (PreparedStatement statement = this.prepareStatement(update.getStatement())) {
             return this.map(statement, mapping).executeUpdate();
@@ -170,8 +124,8 @@ public abstract class Database {
         }
     }
 
-    public <T> int[] batch(String query, Collection<T> collection, Function<? super T, Object>... mappings) {
-        try (PreparedStatement statement = this.prepareStatement(query)) {
+    public <T> int[] batch(SQLBatch batch, Collection<T> collection, Function<? super T, Object>... mappings) {
+        try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
             for (T object : collection) {
                 Object[] parameters = new Object[mappings.length];
 
