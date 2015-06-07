@@ -28,7 +28,7 @@ import com.legendzero.lzlib.database.SQLQuery;
 import com.legendzero.lzlib.database.SQLUpdate;
 
 import java.util.Collection;
-import java.util.function.Function;
+import java.util.Iterator;
 
 public interface SQLData<E extends Database> extends Data<E> {
 
@@ -52,7 +52,15 @@ public interface SQLData<E extends Database> extends Data<E> {
         return this.getStorage().update(update, mapping);
     }
 
-    default <T> int[] batch(SQLBatch batch, Collection<T> collection, Function<? super T, Object>... mappings) {
-        return this.getStorage().batch(batch, collection, mappings);
+    default <T> int[] batch(SQLBatch<T> batch, Iterable<T> iterable) {
+        return this.getStorage().batch(batch, iterable);
+    }
+
+    default <T> int[] batch(SQLBatch<T> batch, Iterator<T> iterator) {
+        return this.getStorage().batch(batch, iterator);
+    }
+
+    default <T> int[] batch(SQLBatch<T> batch, T... values) {
+        return this.getStorage().batch(batch, values);
     }
 }

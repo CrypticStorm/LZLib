@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,13 +124,51 @@ public abstract class Database {
         }
     }
 
-    public <T> int[] batch(SQLBatch batch, Collection<T> collection, Function<? super T, Object>... mappings) {
+    public <T> int[] batch(SQLBatch<T> batch, Iterable<T> iterable) {
+        Function<? super T, Object>[] mappingFunctions = batch.getMappingFunctions();
         try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
-            for (T object : collection) {
-                Object[] parameters = new Object[mappings.length];
+            for (T object : iterable) {
+                Object[] parameters = new Object[mappingFunctions.length];
 
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = mappings[i].apply(object);
+                    parameters[i] = mappingFunctions[i].apply(object);
+                }
+                this.map(statement, parameters).addBatch();
+            }
+            return statement.executeBatch();
+        } catch (SQLException e) {
+            this.logger.log(Level.WARNING, "Error querying database", e);
+            return null;
+        }
+    }
+
+    public <T> int[] batch(SQLBatch<T> batch, Iterator<T> iterator) {
+        Function<? super T, Object>[] mappingFunctions = batch.getMappingFunctions();
+        try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
+            while (iterator.hasNext()) {
+                T object = iterator.next();
+                Object[] parameters = new Object[mappingFunctions.length];
+
+                for (int i = 0; i < parameters.length; i++) {
+                    parameters[i] = mappingFunctions[i].apply(object);
+                }
+                this.map(statement, parameters).addBatch();
+            }
+            return statement.executeBatch();
+        } catch (SQLException e) {
+            this.logger.log(Level.WARNING, "Error querying database", e);
+            return null;
+        }
+    }
+
+    public <T> int[] batch(SQLBatch<T> batch, T... values) {
+        Function<? super T, Object>[] mappingFunctions = batch.getMappingFunctions();
+        try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
+            for (T object : values) {
+                Object[] parameters = new Object[mappingFunctions.length];
+
+                for (int i = 0; i < parameters.length; i++) {
+                    parameters[i] = mappingFunctions[i].apply(object);
                 }
                 this.map(statement, parameters).addBatch();
             }
