@@ -47,7 +47,7 @@ public class GuiInventoryHolder implements InventoryHolder {
                     this, this.guiContents.getType(),
                     this.guiContents.getName());
         }
-        this.guiContents.update(this.inventory, player);
+        this.inventory.setContents(this.guiContents.getItems(player));
 
         if (!Listeners.isRegistered(this.plugin, GuiListener.class)) {
             Listeners.register(this.plugin, new GuiListener(this.plugin));
