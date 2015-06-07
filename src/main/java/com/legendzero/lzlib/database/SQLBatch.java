@@ -3,23 +3,24 @@ package com.legendzero.lzlib.database;
 import com.legendzero.lzlib.data.SQLData;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 
 public class SQLBatch<T> extends SQLStatement {
 
-    private final Function<? super T, Object>[] mappingFunctions;
+    private final List<Function<? super T, Object>> mappingFunctions;
 
-    public SQLBatch(String update, Function<? super T, Object>... mappingFunctions) {
+    public SQLBatch(String update, List<Function<? super T, Object>> mappingFunctions) {
         super(update);
         this.mappingFunctions = mappingFunctions;
     }
 
-    public SQLBatch(SQLStatement sqlStatement, Function<? super T, Object>... mappingFunctions) {
+    public SQLBatch(SQLStatement sqlStatement, List<Function<? super T, Object>> mappingFunctions) {
         super(sqlStatement);
         this.mappingFunctions = mappingFunctions;
     }
 
-    public Function<? super T, Object>[] getMappingFunctions() {
+    public List<Function<? super T, Object>> getMappingFunctions() {
         return this.mappingFunctions;
     }
 
