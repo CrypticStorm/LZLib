@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 public interface SQLFunction<T> extends Function<ResultSet, T> {
 
@@ -27,6 +29,16 @@ public interface SQLFunction<T> extends Function<ResultSet, T> {
                 collection.add(SQLFunction.this.applySilent(rs));
             }
             return collection;
+        };
+    }
+
+    default <R extends Collection<T>> SQLFunction<R> byRow(Collector<T, ?, R> collector) {
+        return rs -> {
+            Stream.Builder<T> builder = Stream.builder();
+            while (rs.next()) {
+                builder.add(SQLFunction.this.applySilent(rs));
+            }
+            return builder.build().collect(collector);
         };
     }
 }
