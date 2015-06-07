@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -125,13 +126,13 @@ public abstract class Database {
     }
 
     public <T> int[] batch(SQLBatch<T> batch, Iterable<T> iterable) {
-        Function<? super T, Object>[] mappingFunctions = batch.getMappingFunctions();
+        List<Function<? super T, Object>> mappingFunctions = batch.getMappingFunctions();
         try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
             for (T object : iterable) {
-                Object[] parameters = new Object[mappingFunctions.length];
+                Object[] parameters = new Object[mappingFunctions.size()];
 
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = mappingFunctions[i].apply(object);
+                    parameters[i] = mappingFunctions.get(i).apply(object);
                 }
                 this.map(statement, parameters).addBatch();
             }
@@ -143,14 +144,14 @@ public abstract class Database {
     }
 
     public <T> int[] batch(SQLBatch<T> batch, Iterator<T> iterator) {
-        Function<? super T, Object>[] mappingFunctions = batch.getMappingFunctions();
+        List<Function<? super T, Object>> mappingFunctions = batch.getMappingFunctions();
         try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
             while (iterator.hasNext()) {
                 T object = iterator.next();
-                Object[] parameters = new Object[mappingFunctions.length];
+                Object[] parameters = new Object[mappingFunctions.size()];
 
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = mappingFunctions[i].apply(object);
+                    parameters[i] = mappingFunctions.get(i).apply(object);
                 }
                 this.map(statement, parameters).addBatch();
             }
@@ -162,13 +163,13 @@ public abstract class Database {
     }
 
     public <T> int[] batch(SQLBatch<T> batch, T... values) {
-        Function<? super T, Object>[] mappingFunctions = batch.getMappingFunctions();
+        List<Function<? super T, Object>> mappingFunctions = batch.getMappingFunctions();
         try (PreparedStatement statement = this.prepareStatement(batch.getStatement())) {
             for (T object : values) {
-                Object[] parameters = new Object[mappingFunctions.length];
+                Object[] parameters = new Object[mappingFunctions.size()];
 
                 for (int i = 0; i < parameters.length; i++) {
-                    parameters[i] = mappingFunctions[i].apply(object);
+                    parameters[i] = mappingFunctions.get(i).apply(object);
                 }
                 this.map(statement, parameters).addBatch();
             }
