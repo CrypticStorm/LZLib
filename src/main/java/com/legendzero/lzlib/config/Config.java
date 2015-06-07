@@ -105,7 +105,7 @@ public interface Config<E extends Data> {
 
         File file = new File(plugin.getDataFolder(), path);
 
-        if (plugin.getDataFolder().mkdirs()) {
+        if (file.getParentFile().mkdirs()) {
             LZLibLang.FILE_CREATE_SUCCESS.log(plugin.getLogger(), Level.INFO, file.getParentFile().getAbsolutePath());
         }
 
