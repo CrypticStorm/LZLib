@@ -54,7 +54,7 @@ public final class Reflections {
     }
 
     public static String getPath(Class<?> clazz) {
-        String path = clazz.getSimpleName();
+        String path = clazz.getSimpleName() + ".yml";
 
         if (clazz.isAnnotationPresent(FilePath.class)) {
             FilePath annotation = clazz.getAnnotation(FilePath.class);
