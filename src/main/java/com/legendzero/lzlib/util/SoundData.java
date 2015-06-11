@@ -27,6 +27,22 @@ public class SoundData {
         this.pitch = pitch;
     }
 
+    public Sound getSoundEnum() {
+        return this.soundEnum;
+    }
+
+    public String getSoundString() {
+        return this.soundString;
+    }
+
+    public float getVolume() {
+        return this.volume;
+    }
+
+    public float getPitch() {
+        return this.pitch;
+    }
+
     public void play(Player... players) {
         if (this.soundEnum != null) {
             Arrays.stream(players).forEach(player -> player.playSound(player.getLocation(), this.soundEnum, this.volume, this.pitch));
