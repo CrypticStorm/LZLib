@@ -23,6 +23,23 @@ public interface SQLFunction<T> extends Function<ResultSet, T> {
         return null;
     }
 
+    default SQLFunction<T> firstRow() {
+        return rs -> {
+            rs.first();
+            return SQLFunction.this.applySilent(rs);
+        };
+    }
+
+    default SQLFunction<T> firstRowOrDefault(T def) {
+        return rs -> {
+            if (rs.first()) {
+                return SQLFunction.this.applySilent(rs);
+            } else {
+                return def;
+            }
+        };
+    }
+
     default <R extends Collection<T>> SQLFunction<R> byRow(R collection) {
         return rs -> {
             while (rs.next()) {

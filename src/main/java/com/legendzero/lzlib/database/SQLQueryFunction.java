@@ -2,9 +2,7 @@ package com.legendzero.lzlib.database;
 
 import java.sql.ResultSet;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collector;
-import java.util.stream.Stream;
 
 public class SQLQueryFunction<T> extends SQLQuery<T> {
 
@@ -22,6 +20,14 @@ public class SQLQueryFunction<T> extends SQLQuery<T> {
     @Override
     public T apply(ResultSet resultSet) {
         return this.function.apply(resultSet);
+    }
+
+    public SQLQueryFunction<T> firstRow() {
+        return new SQLQueryFunction<>(this.getStatement(), this.getFunction().firstRow());
+    }
+
+    public SQLQueryFunction<T> firstRowOrDefault(T def) {
+        return new SQLQueryFunction<>(this.getStatement(), this.getFunction().firstRowOrDefault(def));
     }
 
     public <R extends Collection<T>> SQLQueryFunction<R> byRow(R collection) {

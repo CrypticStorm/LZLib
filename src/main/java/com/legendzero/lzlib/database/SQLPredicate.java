@@ -21,6 +21,6 @@ public interface SQLPredicate extends Predicate<ResultSet> {
     }
 
     static SQLPredicate entryExists() {
-        return ResultSet::next;
+        return ResultSet::first;
     }
 }
