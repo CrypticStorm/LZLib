@@ -41,10 +41,6 @@ public class ConfigCommand<T extends Plugin> extends LZCommand<T> {
     private final ConfigMap configMap;
 
     public ConfigCommand(T plugin, LZCommand<?> parent) {
-        this(plugin, parent, false);
-    }
-
-    public ConfigCommand(T plugin, LZCommand<?> parent, boolean autoDetect) {
         super(plugin, parent);
         this.configMap = new ConfigMap();
     }
