@@ -26,29 +26,24 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.legendzero</groupId>
-    <artifactId>lzlib</artifactId>
+    <parent>
+        <groupId>com.legendzero</groupId>
+        <artifactId>lzlib</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lzlib-data</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
-    <name>LZLib</name>
-    <description>Library plugin aiding in plugin development.</description>
-
-    <organization>
-        <name>Legend Zero</name>
-        <url>http://legendzero.com/</url>
-    </organization>
-
-    <modules>
-        <module>bukkit</module>
-        <module>config</module>
-        <module>data</module>
-        <module>util</module>
-    </modules>
+    <name>LZLib-Data</name>
+    <description>Abstraction of Java File and SQL classes for data management
+    </description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
 </project>
