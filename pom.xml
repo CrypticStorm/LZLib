@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (c) 2015 Legend Zero LLC
   ~
@@ -33,11 +32,41 @@
 
     <name>LZLib</name>
     <description>Library plugin aiding in plugin development.</description>
-
+    <url>https://github.com/CrypticStorm/LZLib</url>
+    <inceptionYear>2014</inceptionYear>
     <organization>
-        <name>Legend Zero</name>
+        <name>Legend Zero LLC</name>
         <url>http://legendzero.com/</url>
     </organization>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>CrypticStorm</id>
+            <name>Robert Carmosino</name>
+            <email>rob@legendzero.com</email>
+            <url>https://github.com/CrypticStorm</url>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Spencer Alderman</name>
+            <email>rogue@codelanx.com</email>
+            <url>http://codelanx.com</url>
+            <roles>
+                <role>inspiration</role>
+            </roles>
+        </contributor>
+    </contributors>
 
     <modules>
         <module>bukkit</module>
@@ -45,6 +74,13 @@
         <module>data</module>
         <module>util</module>
     </modules>
+
+    <scm>
+        <connection>scm:git:git://github.com/CrypticStorm/LZLib.git</connection>
+        <developerConnection>scm:git:git@github.com:CrypticStorm/LZLib.git
+        </developerConnection>
+        <url>https://github.com/CrypticStorm/LZLib</url>
+    </scm>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
