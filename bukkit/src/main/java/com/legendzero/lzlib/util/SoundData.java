@@ -73,7 +73,7 @@ public class SoundData {
         }
     }
 
-    public void play(Iterable<Player> players) {
+    public void play(Iterable<? extends Player> players) {
         if (this.soundEnum != null) {
             players.forEach(player -> player.playSound(player.getLocation(), this.soundEnum, this.volume, this.pitch));
         } else {
@@ -81,7 +81,7 @@ public class SoundData {
         }
     }
 
-    public void play(Iterator<Player> players) {
+    public void play(Iterator<? extends Player> players) {
         if (this.soundEnum != null) {
             players.forEachRemaining(player -> player.playSound(player.getLocation(), this.soundEnum, this.volume, this.pitch));
         } else {
