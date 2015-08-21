@@ -48,7 +48,7 @@ public final class ItemStackBuilder implements Cloneable {
     }
 
     public ItemStackBuilder(ItemStackBuilder itemStackBuilder) {
-        this.itemStack = itemStackBuilder.getItemStack();
+        this(itemStackBuilder.getItemStack());
     }
 
     public ItemStackBuilder(ItemStack itemStack) {
