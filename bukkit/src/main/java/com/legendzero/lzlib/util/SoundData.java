@@ -22,70 +22,76 @@
 
 package com.legendzero.lzlib.util;
 
+import lombok.NonNull;
+import lombok.Value;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
-public class SoundData {
+public final class SoundData {
 
-    private final Sound soundEnum;
-    private final String soundString;
-    private final float volume;
-    private final float pitch;
+    private final BiConsumer<Player, Location> soundPlayer;
 
-    public SoundData(Sound soundEnum, float volume, float pitch) {
-        this.soundEnum = soundEnum;
-        this.soundString = null;
-        this.volume = volume;
-        this.pitch = pitch;
+    public SoundData(@NonNull Sound soundEnum, float volume, float pitch) {
+        this.soundPlayer = (player, location) -> player.playSound(location, soundEnum, volume, pitch);
     }
 
-    public SoundData(String soundString, float volume, float pitch) {
-        this.soundEnum = null;
-        this.soundString = soundString;
-        this.volume = volume;
-        this.pitch = pitch;
+    public SoundData(@NonNull String soundString, float volume, float pitch) {
+        this.soundPlayer = (player, location) -> player.playSound(location, soundString, volume, pitch);
     }
 
-    public Sound getSoundEnum() {
-        return this.soundEnum;
+    public void play(Player player) {
+        this.play(player, player.getLocation());
     }
 
-    public String getSoundString() {
-        return this.soundString;
+    public void play(Player player, Location location) {
+        this.soundPlayer.accept(player, location);
     }
 
-    public float getVolume() {
-        return this.volume;
+    public void play(Player player, Function<Player, Location> function) {
+        this.soundPlayer.accept(player, function.apply(player));
     }
 
-    public float getPitch() {
-        return this.pitch;
+    public void play(Player[] players) {
+        Arrays.stream(players).forEach(this::play);
     }
 
-    public void play(Player... players) {
-        if (this.soundEnum != null) {
-            Arrays.stream(players).forEach(player -> player.playSound(player.getLocation(), this.soundEnum, this.volume, this.pitch));
-        } else {
-            Arrays.stream(players).forEach(player -> player.playSound(player.getLocation(), this.soundString, this.volume, this.pitch));
-        }
+    public void play(Player[] players, Location location) {
+        Arrays.stream(players).forEach(player -> this.play(player, location));
+    }
+
+    public void play(Player[] players, Function<Player, Location> function) {
+        Arrays.stream(players).forEach(player -> this.play(player, function));
     }
 
     public void play(Iterable<? extends Player> players) {
-        if (this.soundEnum != null) {
-            players.forEach(player -> player.playSound(player.getLocation(), this.soundEnum, this.volume, this.pitch));
-        } else {
-            players.forEach(player -> player.playSound(player.getLocation(), this.soundString, this.volume, this.pitch));
-        }
+        players.forEach(this::play);
+    }
+
+    public void play(Iterable<? extends Player> players, Location location) {
+        players.forEach(player -> this.play(player, location));
+    }
+
+    public void play(Iterable<? extends Player> players, Function<Player, Location> function) {
+        players.forEach(player -> this.play(player, function));
     }
 
     public void play(Iterator<? extends Player> players) {
-        if (this.soundEnum != null) {
-            players.forEachRemaining(player -> player.playSound(player.getLocation(), this.soundEnum, this.volume, this.pitch));
-        } else {
-            players.forEachRemaining(player -> player.playSound(player.getLocation(), this.soundString, this.volume, this.pitch));
-        }
+        players.forEachRemaining(this::play);
+    }
+
+    public void play(Iterator<? extends Player> players, Location location) {
+        players.forEachRemaining(player -> this.play(player, location));
+    }
+
+    public void play(Iterator<? extends Player> players, Function<Player, Location> function) {
+        players.forEachRemaining(player -> this.play(player, function));
     }
 }
