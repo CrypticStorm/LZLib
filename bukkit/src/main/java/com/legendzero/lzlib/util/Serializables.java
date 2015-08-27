@@ -22,6 +22,8 @@
 
 package com.legendzero.lzlib.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
@@ -29,24 +31,23 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class Serialization {
-
-    private Serialization() {}
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Serializables {
 
     public static void serialize(Class<? extends ConfigurationSerializable> serializable) {
         ConfigurationSerialization.registerClass(serializable);
     }
 
     public static void serialize(Class<? extends ConfigurationSerializable>... serializables) {
-        Arrays.stream(serializables).forEach(Serialization::serialize);
+        Arrays.stream(serializables).forEach(Serializables::serialize);
     }
 
     public static void serialize(Iterable<? extends Class<? extends ConfigurationSerializable>> serializables) {
-        serializables.forEach(Serialization::serialize);
+        serializables.forEach(Serializables::serialize);
     }
 
     public static void serialize(Iterator<? extends Class<? extends ConfigurationSerializable>> serializables) {
-        serializables.forEachRemaining(Serialization::serialize);
+        serializables.forEachRemaining(Serializables::serialize);
     }
 
     public static ConfigurationSerializable deserialize(Map<String, Object> args) {

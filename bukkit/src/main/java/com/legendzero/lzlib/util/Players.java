@@ -37,9 +37,9 @@ import java.util.Set;
  *
  * @author CrypticStorm
  */
-public final class PlayerBlockChecker {
+public final class Players {
 
-    private PlayerBlockChecker() {
+    private Players() {
     }
 
     public static final float PLAYER_HEIGHT = 1.8f;
