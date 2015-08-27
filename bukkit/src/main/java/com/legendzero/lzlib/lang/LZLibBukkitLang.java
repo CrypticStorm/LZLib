@@ -23,7 +23,7 @@
 package com.legendzero.lzlib.lang;
 
 import com.legendzero.lzlib.data.FileData;
-import com.legendzero.lzlib.util.BukkitUtils;
+import com.legendzero.lzlib.util.Configs;
 
 import static org.bukkit.ChatColor.*;
 
@@ -51,7 +51,7 @@ public enum LZLibBukkitLang implements BukkitLang {
     ;
 
     static {
-        BukkitUtils.register(LZLibBukkitLang.class);
+        Configs.register(LZLibBukkitLang.class);
     }
 
     private final String path;

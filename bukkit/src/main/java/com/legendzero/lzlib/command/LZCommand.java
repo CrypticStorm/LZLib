@@ -25,7 +25,6 @@ package com.legendzero.lzlib.command;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.legendzero.lzlib.lang.LZLibBukkitLang;
-import com.legendzero.lzlib.util.BukkitReflections;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -169,16 +168,9 @@ public abstract class LZCommand<T extends Plugin> implements TabExecutor, Compar
     }
 
     public final boolean registerToBukkit() {
-        PluginCommand pluginCommand = this.plugin.getServer().getPluginCommand(this.name());
-        if (pluginCommand == null) {
-            pluginCommand = BukkitReflections.getPluginCommand(this);
-            CommandMap commandMap = BukkitReflections.getCommandMap(this);
-            if (pluginCommand == null || commandMap == null) {
-                return false;
-            }
-            commandMap.register(this.plugin.getName().toLowerCase(), pluginCommand);
-        }
+        PluginCommand pluginCommand = Commands.registerPluginCommand(this.name(), this.getPlugin());
         pluginCommand.setExecutor(this);
+        pluginCommand.setTabCompleter(this);
         return true;
     }
 

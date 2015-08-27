@@ -22,19 +22,18 @@
 
 package com.legendzero.lzlib.command;
 
-import com.legendzero.lzlib.command.CommandContext;
-import com.legendzero.lzlib.command.SubCommand;
+import com.google.common.collect.Lists;
+import com.legendzero.lzlib.command.arg.CommandArg;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.experimental.UtilityClass;
 import lombok.extern.java.Log;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -43,6 +42,7 @@ import org.bukkit.plugin.PluginManager;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 @Log
@@ -50,16 +50,32 @@ import java.util.logging.Level;
 public final class Commands {
 
     public static PluginCommand registerPluginCommand(String name, Plugin plugin) {
-        PluginCommand pluginCommand = plugin.getServer().getPluginCommand(name);
+        PluginCommand pluginCommand = Bukkit.getPluginCommand(name);
         if (pluginCommand == null) {
             pluginCommand = constructPluginCommand(name, plugin);
-            CommandMap commandMap = getCommandMap();
-            if (pluginCommand == null || commandMap == null) {
-                return null;
-            }
-            commandMap.register(plugin.getName().toLowerCase(), pluginCommand);
         }
-        return pluginCommand;
+        if (pluginCommand != null && registerCommand(pluginCommand)) {
+            return pluginCommand;
+        }
+        return null;
+    }
+
+    public static boolean registerCommand(PluginCommand command) {
+        return registerCommand(command.getPlugin(), command);
+    }
+
+    public static boolean registerCommand(Plugin plugin, Command command) {
+        return registerCommand(plugin.getName(), command);
+    }
+
+    public static boolean registerCommand(String fallbackPrefix, Command command) {
+        CommandMap commandMap = getCommandMap();
+        if (commandMap == null) {
+            return false;
+        } else {
+            commandMap.register(fallbackPrefix, command);
+            return true;
+        }
     }
 
     public static PluginCommand constructPluginCommand(String name, Plugin plugin) {
@@ -68,7 +84,7 @@ public final class Commands {
             c.setAccessible(true);
             return c.newInstance(name, plugin);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException e) {
-            log.log(Level.SEVERE, "Error creating Bukkit command", e);
+            LOGGER.log(Level.SEVERE, "Error creating Bukkit command", e);
             return null;
         }
     }
@@ -83,39 +99,47 @@ public final class Commands {
 
             cMap = (CommandMap) f.get(pluginManager);
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-            log.log(Level.SEVERE, "Error getting CommandMap", e);
+            LOGGER.log(Level.SEVERE, "Error getting CommandMap", e);
         }
 
         return cMap;
     }
 
-    public static void showHelp(SubCommand<?> command, CommandSender sender, CommandContext context) {
+    public static void showHelp(SubCommand command, CommandContext context) {
         String executedCommand = context.getExecutedCommand(true);
-        if (sender instanceof Player) {
-            Player.Spigot player = ((Player) sender).spigot();
+        if (context.getSender() instanceof Player) {
+            Player.Spigot player = ((Player) context.getSender()).spigot();
             BaseComponent[] title = new ComponentBuilder(
                     "Command Help: " + executedCommand)
                     .color(ChatColor.AQUA).underlined(true).create();
             player.sendMessage(title);
-            command.getPermissibleSubCommands(sender).stream().sorted().forEach(
+            command.getPermissibleSubCommands(context).stream().sorted().forEach(
                     cmd -> player.sendMessage(
                             new ComponentBuilder("> ")
                                     .color(ChatColor.YELLOW)
                                     .bold(true)
                                     .event(new ClickEvent(
                                             ClickEvent.Action.RUN_COMMAND,
-                                            executedCommand + " " + cmd.getName()))
-                                    .append(executedCommand + " " + cmd.getName(),
+                                            executedCommand + " " + cmd.name()))
+                                    .append(executedCommand + " " + cmd.name(),
                                             ComponentBuilder.FormatRetention.NONE)
                                     .color(ChatColor.AQUA)
                                     .event(new ClickEvent(
                                             ClickEvent.Action.SUGGEST_COMMAND,
-                                            executedCommand + " " + cmd.getName()))
+                                            executedCommand + " " + cmd.name()))
                                     .create()));
         } else {
-            command.getPermissibleSubCommands(sender).stream().sorted().forEach(
-                    cmd -> sender.sendMessage(executedCommand + " " + cmd.getName()));
+            command.getPermissibleSubCommands(context).stream().sorted().forEach(
+                    cmd -> context.getSender().sendMessage(executedCommand + " " + cmd.name()));
         }
 
+    }
+
+    public static void link(SubCommand parent, SubCommand... child) {
+        Arrays.stream(child).forEach(parent::register);
+    }
+
+    public static SubCommand.SubCommandBuilder builder() {
+        return SubCommand.builder();
     }
 }

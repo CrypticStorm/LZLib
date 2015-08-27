@@ -24,6 +24,8 @@ package com.legendzero.lzlib.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -37,10 +39,8 @@ import java.util.Set;
  *
  * @author CrypticStorm
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Players {
-
-    private Players() {
-    }
 
     public static final float PLAYER_HEIGHT = 1.8f;
     public static final float PLAYER_WIDTH = 0.6f;

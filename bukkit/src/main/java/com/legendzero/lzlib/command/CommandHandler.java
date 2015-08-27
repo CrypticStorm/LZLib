@@ -1,20 +1,14 @@
 package com.legendzero.lzlib.command;
 
 import com.google.common.collect.Lists;
-import com.legendzero.lzlib.command.CommandContext;
-import com.legendzero.lzlib.command.Commands;
-import com.legendzero.lzlib.command.SubCommand;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandHandler {
 
-    public int processContext(SubCommand command, CommandSender sender, CommandContext context) {
-        return 0;
-    }
-
-    public SubCommand getSubCommand(SubCommand command, CommandSender sender, CommandContext context) {
+    public SubCommand getSubCommand(SubCommand command, CommandContext context) {
         if (!context.hasNextArgument()) {
             throw new IllegalArgumentException("No remaining arguments");
         }
@@ -27,12 +21,13 @@ public class CommandHandler {
         return nextCommand;
     }
 
-    public boolean execute(SubCommand command, CommandSender sender, CommandContext context) {
-        Commands.showHelp(command, sender, context);
+    public boolean execute(SubCommand command, CommandContext context) {
+        Commands.showHelp(command, context);
         return true;
     }
 
-    public List<String> tabComplete(SubCommand command, CommandSender sender, CommandContext context) {
-        return Lists.newArrayList();
+    public List<String> tabComplete(SubCommand command, CommandContext context) {
+        return command.getPermissibleSubCommands(context).stream()
+                .map(SubCommand::name).collect(Collectors.toList());
     }
 }

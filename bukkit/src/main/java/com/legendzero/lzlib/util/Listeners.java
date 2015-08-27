@@ -22,21 +22,22 @@
 
 package com.legendzero.lzlib.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Listeners {
-
-    private Listeners() {}
 
     public static void register(Plugin plugin, Listener listener) {
         plugin.getServer().getPluginManager().registerEvents(listener, plugin);
     }
 
     public static void register(Listener listener) {
-        Plugin plugin = BukkitUtils.getProvidingPlugin(listener.getClass());
+        Plugin plugin = Plugins.getProvidingPlugin(listener.getClass());
         register(plugin, listener);
     }
 

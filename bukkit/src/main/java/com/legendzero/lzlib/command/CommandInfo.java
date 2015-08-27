@@ -1,7 +1,7 @@
 package com.legendzero.lzlib.command;
 
-import com.google.common.collect.Lists;
-import com.legendzero.lzlib.command.handler.CommandHandler;
+import com.google.common.collect.ImmutableList;
+import com.legendzero.lzlib.command.arg.CommandArg;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
@@ -9,22 +9,30 @@ import lombok.experimental.FieldDefaults;
 import java.util.List;
 
 @Getter
-@Setter
 @Accessors(chain = true, fluent = true)
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class CommandInfo {
 
-    public CommandInfo(String name, String... aliases) {
-        this.name = name;
-        this.aliases = Lists.newArrayList(aliases);
-    }
+    @NonNull String name;
+    @NonNull List<String> aliases;
+    @NonNull List<CommandArg> arguments;
+    @NonNull String description;
+    @NonNull String usage;
+    @NonNull String permission;
+    @NonNull String permissionMessage;
+    @NonNull CommandHandler handler;
 
-    @NonNull final String name;
-    @NonNull final List<String> aliases;
-    @NonNull String description = null;
-    @NonNull String usage = null;
-    @NonNull String permission = null;
-    @NonNull String permissionMessage = null;
-    @NonNull CommandHandler commandHandler = new CommandHandler();
+    public CommandInfo(String name, @Singular List<String> aliases,
+                       @Singular List<CommandArg> arguments,
+                       String description, String usage, String permission,
+                       String permissionMessage, CommandHandler handler) {
+        this.name = name;
+        this.aliases = aliases == null ? ImmutableList.of() : aliases;
+        this.arguments = arguments == null ? ImmutableList.of() : arguments;
+        this.description = description;
+        this.usage = usage;
+        this.permission = permission;
+        this.permissionMessage = permissionMessage;
+        this.handler = handler == null ? new CommandHandler() : handler;
+    }
 }
