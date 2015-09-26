@@ -89,7 +89,7 @@ public abstract class Database {
     protected final Connection getConnection() {
         if (this.enabled) {
             try {
-                if (this.connection == null || this.connection.isClosed()) {
+                if (this.connection == null || this.connection.isClosed() || this.connection.isValid(5)) {
                     this.connection = this.openConnection();
                 }
             } catch (SQLException e) {
