@@ -32,9 +32,8 @@ import java.util.function.Consumer;
 public interface GuiClickHandler extends Consumer<InventoryClickEvent> {
 
     static GuiClickHandler performCommands(String... commands) {
-        return event -> Arrays.stream(commands)
-                .map(cmd -> cmd.replaceAll("%player%", event.getWhoClicked().getName()))
-                .forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+        return event -> Arrays.stream(commands).forEach(cmd -> ((Player) event.getWhoClicked())
+                .performCommand(cmd.replaceAll("%player%", event.getWhoClicked().getName())));
     }
 
     static GuiClickHandler performCommands(Iterable<String> commands) {
@@ -50,13 +49,11 @@ public interface GuiClickHandler extends Consumer<InventoryClickEvent> {
     static GuiClickHandler performLRCommands(String[] leftCommands, String[] rightCommands) {
         return event -> {
             if (event.getClick().isLeftClick()) {
-                Arrays.stream(leftCommands)
-                        .map(cmd -> cmd.replaceAll("%player%", event.getWhoClicked().getName()))
-                        .forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+                Arrays.stream(leftCommands).forEach(cmd -> ((Player) event.getWhoClicked())
+                        .performCommand(cmd.replaceAll("%player%", event.getWhoClicked().getName())));
             } else if (event.getClick().isRightClick()) {
-                Arrays.stream(rightCommands)
-                        .map(cmd -> cmd.replaceAll("%player%", event.getWhoClicked().getName()))
-                        .forEach(cmd -> ((Player) event.getWhoClicked()).performCommand(cmd));
+                Arrays.stream(rightCommands).forEach(cmd -> ((Player) event.getWhoClicked())
+                        .performCommand(cmd.replaceAll("%player%", event.getWhoClicked().getName())));
             }
         };
     }
