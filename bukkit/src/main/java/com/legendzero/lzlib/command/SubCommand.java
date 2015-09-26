@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Collection;
@@ -30,18 +31,25 @@ public class SubCommand {
     private SubCommand(Plugin register, String name, @Singular List<String> aliases,
                        @Singular List<CommandArg> arguments,
                        String description, String usage, String permission,
-                       String permissionMessage, CommandHandler handler) {
+                       String permissionMessage,
+                       PermissionDefault permissionDefault,
+                       CommandHandler handler) {
         this(new CommandInfo(name, aliases, arguments, description, usage,
-                permission, permissionMessage, handler), register);
+                permission, permissionMessage, permissionDefault, handler),
+                register);
     }
 
     SubCommand(CommandInfo commandInfo, @NonNull Plugin register) {
         this(commandInfo);
         if (register != null) {
             PluginCommand pluginCommand = Commands.registerPluginCommand(commandInfo.name(), register);
-            BukkitHandler bukkitHandler = new BukkitHandler(register);
-            pluginCommand.setExecutor(bukkitHandler);
-            pluginCommand.setTabCompleter(bukkitHandler);
+            if (pluginCommand != null) {
+                BukkitHandler bukkitHandler = new BukkitHandler(register);
+                pluginCommand.setExecutor(bukkitHandler);
+                pluginCommand.setTabCompleter(bukkitHandler);
+            } else {
+                throw new IllegalStateException("Error registering command " + this.name());
+            }
         }
     }
 

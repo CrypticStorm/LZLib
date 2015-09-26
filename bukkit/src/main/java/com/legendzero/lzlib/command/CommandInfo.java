@@ -5,6 +5,7 @@ import com.legendzero.lzlib.command.arg.CommandArg;
 import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import org.bukkit.permissions.PermissionDefault;
 
 import java.util.List;
 
@@ -20,12 +21,15 @@ public class CommandInfo {
     @NonNull String usage;
     @NonNull String permission;
     @NonNull String permissionMessage;
+    @NonNull PermissionDefault permissionDefault;
     @NonNull CommandHandler handler;
 
     public CommandInfo(String name, @Singular List<String> aliases,
                        @Singular List<CommandArg> arguments,
                        String description, String usage, String permission,
-                       String permissionMessage, CommandHandler handler) {
+                       String permissionMessage,
+                       PermissionDefault permissionDefault,
+                       CommandHandler handler) {
         this.name = name;
         this.aliases = aliases == null ? ImmutableList.of() : aliases;
         this.arguments = arguments == null ? ImmutableList.of() : arguments;
@@ -33,6 +37,7 @@ public class CommandInfo {
         this.usage = usage;
         this.permission = permission;
         this.permissionMessage = permissionMessage;
+        this.permissionDefault = permissionDefault;
         this.handler = handler == null ? new CommandHandler() : handler;
     }
 }
