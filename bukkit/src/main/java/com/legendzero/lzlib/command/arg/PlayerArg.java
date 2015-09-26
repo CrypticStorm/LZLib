@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 public class PlayerArg implements CommandArg {
 
+    public static BiPredicate<? super CommandContext, ? super Player> ALL
+            = (context, player) -> true;
     public static BiPredicate<? super CommandContext, ? super Player> EXCLUDE_SELF
             = (context, player) -> context.getSender() != player;
     public static BiPredicate<? super CommandContext, ? super Player> CAN_SEE
@@ -27,7 +29,7 @@ public class PlayerArg implements CommandArg {
     }
 
     public PlayerArg(String contextKey, boolean infinite) {
-        this(contextKey, infinite, (s, p) -> true);
+        this(contextKey, infinite, ALL);
     }
 
     public PlayerArg(String contextKey,
