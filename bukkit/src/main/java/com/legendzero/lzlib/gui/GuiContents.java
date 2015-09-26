@@ -34,7 +34,7 @@ public class GuiContents {
     private final InventoryType type;
     private final String name;
     private final int size;
-    private final Consumer<? super Player> consumer;
+    private Consumer<? super Player> consumer;
     private GuiContents parent;
     private final GuiItem[] itemStackFunctions;
     private final GuiClickHandler[] clickHandlers;
@@ -87,6 +87,10 @@ public class GuiContents {
             contents[i] = this.itemStackFunctions[i].apply(player);
         }
         return contents;
+    }
+
+    public void setConsumer(Consumer<? super Player> consumer) {
+        this.consumer = consumer;
     }
 
     public void setParent(GuiContents parent) {
