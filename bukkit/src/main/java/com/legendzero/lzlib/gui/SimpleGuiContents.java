@@ -23,9 +23,33 @@
 package com.legendzero.lzlib.gui;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-public interface GuiItem extends Function<Player, ItemStack> {
+public class SimpleGuiContents extends GuiContents<Void> {
+
+    public SimpleGuiContents(InventoryType type, int size, Function<? super Player, String> nameFunction) {
+        super(type, size, nameFunction);
+    }
+
+    public SimpleGuiContents(InventoryType type, int size, String name) {
+        super(type, size, name);
+    }
+
+    public void setItem(int slot, Function<Player, ItemStack> item) {
+        super.setItem(slot, (player, aVoid) -> item.apply(player));
+    }
+
+    public void setAction(int slot, Consumer<InventoryClickEvent> action) {
+        super.setAction(slot, (event, aVoid) -> action.accept(event));
+    }
+
+    public void set(int slot, Function<Player, ItemStack> item, Consumer<InventoryClickEvent> action) {
+        super.set(slot, (player, aVoid) -> item.apply(player),
+                (event, aVoid) -> action.accept(event));
+    }
 }

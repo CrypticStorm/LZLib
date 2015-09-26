@@ -29,25 +29,27 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.Plugin;
 
-public class GuiInventoryHolder implements InventoryHolder {
+public class GuiInventoryHolder<T> implements InventoryHolder {
 
     private final Plugin plugin;
-    private final GuiContents guiContents;
+    private final GuiContents<T> guiContents;
     private final Inventory inventory;
+    private T data;
 
-    public GuiInventoryHolder(Plugin plugin, GuiContents guiContents, Player player) {
+    public GuiInventoryHolder(Plugin plugin, GuiContents<T> guiContents, Player player) {
         this.plugin = plugin;
         this.guiContents = guiContents;
         if (this.guiContents.getType() == null) {
-            this.inventory = this.plugin.getServer().createInventory(
-                    this, this.guiContents.getSize(),
+            this.inventory = this.plugin.getServer().createInventory(this,
+                    this.guiContents.getSize(),
                     this.guiContents.getName().apply(player));
         } else {
-            this.inventory = this.plugin.getServer().createInventory(
-                    this, this.guiContents.getType(),
+            this.inventory = this.plugin.getServer().createInventory(this,
+                    this.guiContents.getType(),
                     this.guiContents.getName().apply(player));
         }
-        this.inventory.setContents(this.guiContents.getItems(player));
+        this.data = this.guiContents.getData(player);
+        this.inventory.setContents(this.guiContents.getItems(player, this.data));
 
         if (!Listeners.isRegistered(this.plugin, GuiListener.class)) {
             Listeners.register(this.plugin, new GuiListener(this.plugin));
@@ -58,7 +60,7 @@ public class GuiInventoryHolder implements InventoryHolder {
         return this.plugin;
     }
 
-    public GuiContents getGuiContents() {
+    public GuiContents<T> getGuiContents() {
         return this.guiContents;
     }
 
@@ -69,7 +71,9 @@ public class GuiInventoryHolder implements InventoryHolder {
 
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.getInventory().equals(event.getClickedInventory())) {
-            this.guiContents.onClick(event);
+            if (this.guiContents.hasAction(event.getSlot())) {
+                this.guiContents.getAction(event.getSlot()).accept(event, this.data);
+            }
         }
 
     }

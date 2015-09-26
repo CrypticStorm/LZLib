@@ -22,115 +22,95 @@
 
 package com.legendzero.lzlib.gui;
 
+import com.google.common.collect.ImmutableList;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public class GuiContents {
+public class GuiContents<T> {
 
-    private final InventoryType type;
-    private final Function<? super Player, String> name;
-    private final int size;
-    private Consumer<? super Player> consumer;
-    private GuiContents parent;
-    private final GuiItem[] itemStackFunctions;
-    private final GuiClickHandler[] clickHandlers;
+    @Getter private final InventoryType type;
+    @Getter private final Function<? super Player, String> name;
+    @Getter private final int size;
+    private final List<BiFunction<Player, T, ItemStack>> items;
+    private final List<BiConsumer<InventoryClickEvent, T>> actions;
+    @Getter @Setter private Function<Player, ? extends T> dataFunction;
+    @Getter @Setter private GuiContents<?> parent;
 
-    public GuiContents(InventoryType type, Function<? super Player, String> name, int size, Consumer<? super Player> consumer) {
+    public GuiContents(InventoryType type, int size, Function<? super Player, String> nameFunction, Function<Player, ? extends T> dataFunction) {
         this.type = type;
-        this.name = name;
+        this.name = nameFunction;
         this.size = size;
-        this.consumer = consumer;
+        this.dataFunction = dataFunction;
         this.parent = null;
-        this.itemStackFunctions = new GuiItem[this.size];
-        this.clickHandlers = new GuiClickHandler[this.size];
+        this.items = ImmutableList.copyOf(Collections.nCopies(this.size, null));
+        this.actions = ImmutableList.copyOf(Collections.nCopies(this.size, null));
     }
 
-    public GuiContents(InventoryType type, Function<? super Player, String> name, int size) {
-        this(type, name, size, null);
+    public GuiContents(InventoryType type, int size, Function<? super Player, String> nameFunction) {
+        this(type, size, nameFunction, null);
     }
 
-    public GuiContents(InventoryType type, String name, int size, Consumer<? super Player> consumer) {
-        this(type, player -> name, size, consumer);
+    public GuiContents(InventoryType type, int size, String name, Function<Player, ? extends T> dataFunction) {
+        this(type, size, player -> name, dataFunction);
     }
 
-    public GuiContents(InventoryType type, String name, int size) {
-        this(type, name, size, null);
+    public GuiContents(InventoryType type, int size, String name) {
+        this(type, size, name, null);
     }
 
-    public InventoryType getType() {
-        return this.type;
-    }
-
-    public Function<? super Player, String> getName() {
-        return this.name;
-    }
-
-    public int getSize() {
-        return this.size;
-    }
-
-    public Consumer<? super Player> getConsumer() {
-        return this.consumer;
-    }
-
-    public GuiContents getParent() {
-        return this.parent;
+    public T getData(Player player) {
+        return this.dataFunction.apply(player);
     }
 
     public boolean hasItem(int slot) {
-        return this.itemStackFunctions[slot] != null;
+        return this.items.get(slot) != null;
     }
 
     public boolean hasAction(int slot) {
-        return this.clickHandlers[slot] != null;
+        return this.actions.get(slot) != null;
     }
 
-    public ItemStack[] getItems(Player player) {
+    public ItemStack[] getItems(Player player, T data) {
         ItemStack[] contents = new ItemStack[this.size];
         for (int i = 0; i < this.size; i++) {
-            contents[i] = this.itemStackFunctions[i].apply(player);
+            contents[i] = this.items.get(i).apply(player, data);
         }
         return contents;
     }
 
-    public void setConsumer(Consumer<? super Player> consumer) {
-        this.consumer = consumer;
+    public void setItem(int slot, BiFunction<Player, T, ItemStack> item) {
+        this.items.set(slot, item);
     }
 
-    public void setParent(GuiContents parent) {
-        this.parent = parent;
+    public BiConsumer<InventoryClickEvent, T> getAction(int slot) {
+        return this.actions.get(slot);
     }
 
-    public void setItem(int slot, GuiItem item) {
-        this.itemStackFunctions[slot] = item;
+    public void setAction(int slot, BiConsumer<InventoryClickEvent, T> action) {
+        this.actions.set(slot, action);
     }
 
-    public void setClickHandler(int slot, GuiClickHandler clickHandler) {
-        this.clickHandlers[slot] = clickHandler;
-    }
-
-    public void set(int slot, GuiItem item, GuiClickHandler clickHandler) {
+    public void set(int slot, BiFunction<Player, T, ItemStack> item,
+                    BiConsumer<InventoryClickEvent, T> action) {
         this.setItem(slot, item);
-        this.setClickHandler(slot, clickHandler);
+        this.setAction(slot, action);
     }
 
-    public void fillEmpty(GuiItem item) {
+    public void fillEmpty(BiFunction<Player, T, ItemStack> item) {
         for (int i = 0; i < this.size; i++) {
-            if (this.itemStackFunctions[i] == null) {
-                this.itemStackFunctions[i] = item;
+            if (this.items.get(i) == null) {
+                this.items.set(i, item);
             }
-        }
-    }
-
-    public void onClick(InventoryClickEvent event) {
-        GuiClickHandler clickHandler = this.clickHandlers[event.getSlot()];
-        if (clickHandler != null) {
-            clickHandler.accept(event);
         }
     }
 }
