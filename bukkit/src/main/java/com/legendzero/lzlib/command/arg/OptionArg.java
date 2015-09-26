@@ -3,15 +3,10 @@ package com.legendzero.lzlib.command.arg;
 import com.google.common.collect.BiMap;
 import com.legendzero.lzlib.command.CommandContext;
 import com.legendzero.lzlib.command.SubCommand;
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -23,7 +18,7 @@ public class OptionArg<T> implements CommandArg {
     private final Function<? super T, String> stringFunction;
     private final Function<String, ? extends T> contextFunction;
 
-    public OptionArg(String contextKey,Collection<? extends T> collection,
+    public OptionArg(String contextKey, Collection<? extends T> collection,
                      Function<? super T, String> stringFunction) {
         this(contextKey, () -> collection, stringFunction);
     }
