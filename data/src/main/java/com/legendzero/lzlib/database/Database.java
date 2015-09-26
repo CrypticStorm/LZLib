@@ -35,16 +35,22 @@ import java.util.logging.Logger;
 public abstract class Database {
 
     protected Connection connection;
+    protected int timeout;
     protected Logger logger;
 
     private String identifier;
     private boolean enabled;
 
     public Database(String identifier, String driverClass) {
-        this.connection = null;
-        this.logger = Logger.getLogger(identifier);
-        this.identifier = identifier;
+        this(identifier, driverClass, 5);
+    }
 
+    public Database(String identifier, String driverClass, int timeout) {
+        this.connection = null;
+        this.timeout = timeout;
+        this.logger = Logger.getLogger(identifier);
+
+        this.identifier = identifier;
         this.enabled = this.checkClass(identifier, driverClass);
     }
 
@@ -60,6 +66,14 @@ public abstract class Database {
         } else {
             return true;
         }
+    }
+
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public final String getIdentifier() {
@@ -87,9 +101,10 @@ public abstract class Database {
     protected abstract Connection openConnection() throws SQLException;
 
     protected final Connection getConnection() {
-        if (this.enabled) {
+        if (this.isEnabled()) {
             try {
-                if (this.connection == null || this.connection.isClosed() || this.connection.isValid(5)) {
+                if (this.connection == null || this.connection.isClosed()
+                        || (this.timeout > 0 && !this.connection.isValid(this.getTimeout()))) {
                     this.connection = this.openConnection();
                 }
             } catch (SQLException e) {
