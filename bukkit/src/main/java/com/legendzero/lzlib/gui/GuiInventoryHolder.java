@@ -41,11 +41,11 @@ public class GuiInventoryHolder implements InventoryHolder {
         if (this.guiContents.getType() == null) {
             this.inventory = this.plugin.getServer().createInventory(
                     this, this.guiContents.getSize(),
-                    this.guiContents.getName());
+                    this.guiContents.getName().apply(player));
         } else {
             this.inventory = this.plugin.getServer().createInventory(
                     this, this.guiContents.getType(),
-                    this.guiContents.getName());
+                    this.guiContents.getName().apply(player));
         }
         this.inventory.setContents(this.guiContents.getItems(player));
 
