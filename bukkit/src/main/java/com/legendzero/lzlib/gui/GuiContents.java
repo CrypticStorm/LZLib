@@ -22,7 +22,7 @@
 
 package com.legendzero.lzlib.gui;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.entity.Player;
@@ -52,8 +52,8 @@ public class GuiContents<T> {
         this.size = size;
         this.dataFunction = dataFunction;
         this.parent = null;
-        this.items = ImmutableList.copyOf(Collections.nCopies(this.size, null));
-        this.actions = ImmutableList.copyOf(Collections.nCopies(this.size, null));
+        this.items = Lists.newArrayList(Collections.nCopies(this.size, null));
+        this.actions = Lists.newArrayList(Collections.nCopies(this.size, null));
     }
 
     public GuiContents(InventoryType type, int size, Function<? super Player, String> nameFunction) {
