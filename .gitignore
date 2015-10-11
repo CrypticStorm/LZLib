@@ -1,5 +1,8 @@
+/.settings
 /target
 /out
 /.idea
+*.classpath
+*.project
 *.iml
 *-pom.xml
