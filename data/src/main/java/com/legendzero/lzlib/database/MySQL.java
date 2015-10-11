@@ -22,31 +22,33 @@
 
 package com.legendzero.lzlib.database;
 
+import lombok.NonNull;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MySQL extends Database {
-	private final String hostname;
-	private final String port;
-	private final String database;
+
+	private static final String URL_FORMAT = "jdbc:mysql://%s:%s/%s?autoReconnect=true";
+
+	private final String url;
 	private final String user;
 	private final String password;
 
-	public MySQL(String hostname, String port, String database, String username, String password) {
-		super("MySQL", "com.mysql.jdbc.Driver");
-		this.hostname = hostname;
-		this.port = port;
-		this.database = database;
+	public MySQL(String hostname, String port, String database, String username, String password, int timeout) {
+		super("MySQL", "com.mysql.jdbc.Driver", timeout);
+		this.url = String.format(URL_FORMAT, hostname, port, database);
 		this.user = username;
 		this.password = password;
 	}
 
+	public MySQL(String hostname, String port, String database, String username, String password) {
+		this(hostname, port, database, username, password, DEFAULT_TIMEOUT);
+	}
+
 	@Override
-	protected Connection openConnection() throws SQLException {
-		return DriverManager.getConnection("jdbc:mysql://" + this.hostname +
-						":" + this.port + "/" + this.database +
-						"?autoReconnect=true",
-				this.user, this.password);
+	protected @NonNull Connection openConnection() throws SQLException {
+		return DriverManager.getConnection(this.url, this.user, this.password);
 	}
 }

@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-public interface SQLFunction<T> extends Function<ResultSet, T> {
+public interface SQLHandler<T> extends Function<ResultSet, T> {
 
     T applySilent(ResultSet resultSet) throws SQLException;
 
@@ -40,44 +40,48 @@ public interface SQLFunction<T> extends Function<ResultSet, T> {
         try {
             return applySilent(resultSet);
         } catch (SQLException e) {
-            Logger.getLogger("SQLFunction").log(Level.WARNING, "Error in SQLFunction", e);
+            Logger.getLogger("SQLHandler").log(Level.WARNING, "Error in SQLFunction", e);
         }
         return null;
     }
 
-    default SQLFunction<T> firstRow() {
+    static <T> SQLHandler<T> first(SQLHandler<T> sqlHandler) {
         return rs -> {
             rs.first();
-            return SQLFunction.this.applySilent(rs);
+            return sqlHandler.applySilent(rs);
         };
     }
 
-    default SQLFunction<T> firstRowOrDefault(T def) {
+    static <T> SQLHandler<T> first(SQLHandler<T> sqlHandler, T def) {
         return rs -> {
             if (rs.first()) {
-                return SQLFunction.this.applySilent(rs);
+                return sqlHandler.applySilent(rs);
             } else {
                 return def;
             }
         };
     }
 
-    default <R extends Collection<T>> SQLFunction<R> byRow(R collection) {
+    static <T, R extends Collection<T>> SQLHandler<R> byRow(SQLHandler<T> sqlHandler, R collection) {
         return rs -> {
             while (rs.next()) {
-                collection.add(SQLFunction.this.applySilent(rs));
+                collection.add(sqlHandler.applySilent(rs));
             }
             return collection;
         };
     }
 
-    default <R extends Collection<T>> SQLFunction<R> byRow(Collector<T, ?, R> collector) {
+    static <T, R> SQLHandler<R> byRow(SQLHandler<T> sqlHandler, Collector<? super T, ?, R> collector) {
         return rs -> {
             Stream.Builder<T> builder = Stream.builder();
             while (rs.next()) {
-                builder.add(SQLFunction.this.applySilent(rs));
+                builder.accept(sqlHandler.applySilent(rs));
             }
             return builder.build().collect(collector);
         };
+    }
+
+    static SQLHandler<Boolean> entryExists() {
+        return ResultSet::first;
     }
 }

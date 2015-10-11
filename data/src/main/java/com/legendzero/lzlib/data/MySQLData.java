@@ -23,14 +23,12 @@
 package com.legendzero.lzlib.data;
 
 import com.legendzero.lzlib.database.MySQL;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 public class MySQLData implements SQLData<MySQL> {
 
     private final MySQL mySQL;
-
-    public MySQLData(MySQL mySQL) {
-        this.mySQL = mySQL;
-    }
 
     @Override
     public MySQL getStorage() {

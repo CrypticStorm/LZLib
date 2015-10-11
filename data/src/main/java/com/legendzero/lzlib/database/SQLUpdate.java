@@ -30,11 +30,7 @@ public class SQLUpdate extends SQLStatement {
         super(update);
     }
 
-    public SQLUpdate(SQLStatement sqlStatement) {
-        super(sqlStatement);
-    }
-
-    public final Integer update(SQLData<?> data, Object... mapping) {
+    public final int update(SQLData<?> data, Object... mapping) {
         return data.update(this, mapping);
     }
 }

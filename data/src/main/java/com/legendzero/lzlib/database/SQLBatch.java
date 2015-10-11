@@ -37,11 +37,6 @@ public class SQLBatch<T> extends SQLStatement {
         this.mappingFunctions = mappingFunctions;
     }
 
-    public SQLBatch(SQLStatement sqlStatement, List<Function<? super T, Object>> mappingFunctions) {
-        super(sqlStatement);
-        this.mappingFunctions = mappingFunctions;
-    }
-
     public List<Function<? super T, Object>> getMappingFunctions() {
         return this.mappingFunctions;
     }

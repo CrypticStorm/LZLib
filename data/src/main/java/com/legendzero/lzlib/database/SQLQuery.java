@@ -23,21 +23,23 @@
 package com.legendzero.lzlib.database;
 
 import com.legendzero.lzlib.data.SQLData;
+import lombok.Data;
 
-import java.sql.ResultSet;
-import java.util.function.Function;
+@Data
+public class SQLQuery<T> extends SQLStatement {
 
-public abstract class SQLQuery<T> extends SQLStatement implements Function<ResultSet, T> {
+    private final SQLHandler<T> sqlFunction;
 
-    public SQLQuery(String query) {
+    public SQLQuery(String query, SQLHandler<T> sqlHandler) {
         super(query);
-    }
-
-    public SQLQuery(SQLStatement sqlStatement) {
-        super(sqlStatement);
+        this.sqlFunction = sqlHandler;
     }
 
     public final T query(SQLData<?> data, Object... mapping) {
-        return data.query(this, mapping);
+        return this.sqlFunction.apply(data.query(this, mapping));
+    }
+
+    public static <T> SQLQuery<T> of(String query, SQLHandler<T> sqlHandler) {
+        return new SQLQuery<>(query, sqlHandler);
     }
 }

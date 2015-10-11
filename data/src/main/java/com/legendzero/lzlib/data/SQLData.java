@@ -27,6 +27,7 @@ import com.legendzero.lzlib.database.SQLBatch;
 import com.legendzero.lzlib.database.SQLQuery;
 import com.legendzero.lzlib.database.SQLUpdate;
 
+import java.sql.ResultSet;
 import java.util.Iterator;
 
 public interface SQLData<E extends Database> extends Data<E> {
@@ -43,11 +44,11 @@ public interface SQLData<E extends Database> extends Data<E> {
         return this.getStorage().closeConnection();
     }
 
-    default <T> T query(SQLQuery<T> query, Object... mapping) {
+    default ResultSet query(SQLQuery<?> query, Object... mapping) {
         return this.getStorage().query(query, mapping);
     }
 
-    default Integer update(SQLUpdate update, Object... mapping) {
+    default int update(SQLUpdate update, Object... mapping) {
         return this.getStorage().update(update, mapping);
     }
 

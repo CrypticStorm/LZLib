@@ -22,6 +22,10 @@
 
 package com.legendzero.lzlib.database;
 
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,22 +38,24 @@ import java.util.logging.Logger;
 
 public abstract class Database {
 
+    public static int DEFAULT_TIMEOUT = 5;
+
     protected Connection connection;
-    protected int timeout;
     protected Logger logger;
 
-    private String identifier;
-    private boolean enabled;
+    @Getter @Setter private int timeout;
+    @Getter private String identifier;
+    @Getter private boolean enabled;
 
     public Database(String identifier, String driverClass) {
-        this(identifier, driverClass, 5);
+        this(identifier, driverClass, DEFAULT_TIMEOUT);
     }
 
     public Database(String identifier, String driverClass, int timeout) {
         this.connection = null;
-        this.timeout = timeout;
         this.logger = Logger.getLogger(identifier);
 
+        this.timeout = timeout;
         this.identifier = identifier;
         this.enabled = this.checkClass(identifier, driverClass);
     }
@@ -68,25 +74,9 @@ public abstract class Database {
         }
     }
 
-    public int getTimeout() {
-        return this.timeout;
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
-    public final String getIdentifier() {
-        return this.identifier;
-    }
-
     public final void setIdentifier(String identifier) {
         this.logger = Logger.getLogger(identifier);
         this.identifier = identifier;
-    }
-
-    public final boolean isEnabled() {
-        return this.enabled;
     }
 
     public final void setEnabled(boolean enabled) {
@@ -98,7 +88,7 @@ public abstract class Database {
         }
     }
 
-    protected abstract Connection openConnection() throws SQLException;
+    protected abstract @NonNull Connection openConnection() throws SQLException;
 
     protected final Connection getConnection() {
         if (this.isEnabled()) {
@@ -107,12 +97,13 @@ public abstract class Database {
                         || (this.timeout > 0 && !this.connection.isValid(this.getTimeout()))) {
                     this.connection = this.openConnection();
                 }
+                return this.connection;
             } catch (SQLException e) {
                 this.logger.log(Level.SEVERE, "Error opening connection", e);
+                throw new IllegalStateException("Error opening connection", e);
             }
-            return this.connection;
         } else {
-            return null;
+            throw new IllegalStateException(this.identifier + " database is not enabled.");
         }
     }
 
@@ -142,18 +133,16 @@ public abstract class Database {
         return statement;
     }
 
-    public <T> T query(SQLQuery<T> query, Object... mappings) {
+    public ResultSet query(SQLQuery<?> query, Object... mappings) {
         try (PreparedStatement statement = this.prepareStatement(query.getStatement())) {
-            try (ResultSet resultSet = this.map(statement, mappings).executeQuery()) {
-                return query.apply(resultSet);
-            }
+            return this.map(statement, mappings).executeQuery();
         } catch (SQLException e) {
             this.logger.log(Level.WARNING, "Error querying database", e);
         }
         return null;
     }
 
-    public Integer update(SQLUpdate update, Object... mapping) {
+    public int update(SQLUpdate update, Object... mapping) {
         try (PreparedStatement statement = this.prepareStatement(update.getStatement())) {
             return this.map(statement, mapping).executeUpdate();
         } catch (SQLException e) {
