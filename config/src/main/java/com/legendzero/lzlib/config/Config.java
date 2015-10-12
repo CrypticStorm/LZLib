@@ -25,6 +25,9 @@ package com.legendzero.lzlib.config;
 import com.google.common.primitives.Primitives;
 import com.legendzero.lzlib.data.Data;
 
+import java.util.Collection;
+import java.util.Map;
+
 public interface Config<E extends Data> {
 
     E getData();
@@ -81,6 +84,26 @@ public interface Config<E extends Data> {
             }
         } else {
             return null;
+        }
+    }
+
+    default <T, C extends Collection<? super T>> C as(Class<C> collectionClazz, Class<T> type) {
+        C collection = this.as(collectionClazz);
+        if (collection.stream().filter(obj -> !type.isInstance(obj)).findAny().isPresent()) {
+            throw new ClassCastException("Improper type in collection.");
+        } else {
+            return collection;
+        }
+    }
+
+    default <K, V, M extends Map<? super K, ? super V>> M as(Class<M> mapClazz, Class<K> keyType, Class<V> valueType) {
+        M map = this.as(mapClazz);
+        if (map.entrySet().stream().filter(
+                entry -> !keyType.isInstance(entry.getKey())
+                        || !valueType.isInstance(entry.getValue())).findAny().isPresent()) {
+            throw new ClassCastException("Improper type in map.");
+        } else {
+            return map;
         }
     }
 }
