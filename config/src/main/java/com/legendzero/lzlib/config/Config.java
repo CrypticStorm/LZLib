@@ -24,9 +24,11 @@ package com.legendzero.lzlib.config;
 
 import com.google.common.primitives.Primitives;
 import com.legendzero.lzlib.data.Data;
+import com.legendzero.lzlib.util.Pair;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.stream.Collector;
 
 public interface Config<E extends Data> {
 
@@ -50,60 +52,55 @@ public interface Config<E extends Data> {
 
     default <T> T as(Class<T> clazz) {
         Object value = this.get();
-        if (value != null) {
-            if (clazz.isInstance(value)) {
-                return clazz.cast(value);
+
+        if (clazz.isPrimitive() || Primitives.isWrapperType(clazz)) {
+            if (value == null) {
+                if (clazz.equals(boolean.class) || clazz.equals(Boolean.class)) {
+                    return clazz.cast(false);
+                } else if (clazz.equals(byte.class) || clazz.equals(Byte.class)) {
+                    return clazz.cast((byte) -1);
+                } else if (clazz.equals(char.class) || clazz.equals(Character.class)) {
+                    return clazz.cast((char) -1);
+                } else if (clazz.equals(double.class) || clazz.equals(Double.class)) {
+                    return clazz.cast(-1D);
+                } else if (clazz.equals(float.class) || clazz.equals(Float.class)) {
+                    return clazz.cast(-1F);
+                } else if (clazz.equals(int.class) || clazz.equals(Integer.class)) {
+                    return clazz.cast(-1);
+                } else if (clazz.equals(long.class) || clazz.equals(Long.class)) {
+                    return clazz.cast(-1L);
+                } else if (clazz.equals(short.class) || clazz.equals(Short.class)) {
+                    return clazz.cast((short) -1);
+                } else if (clazz.equals(void.class) || clazz.equals(Void.class)) {
+                    throw new IllegalArgumentException("Can not cast to void");
+                } else {
+                    throw new IllegalArgumentException("Invalid primitive: " + clazz.getName());
+                }
+            } else {
+                return Primitives.wrap(clazz).cast(value);
             }
+        } else if (value == null) {
+            return null;
+        } else if (clazz.equals(String.class)) {
+            return clazz.cast(String.valueOf(value));
+        } else if (clazz.isInstance(value)) {
+            return clazz.cast(value);
+        } else {
             Object def = this.getDefault();
             if (clazz.isInstance(def)) {
                 return clazz.cast(def);
-            } else {
-                throw new ClassCastException();
             }
-        } else if (clazz.isPrimitive() || Primitives.isWrapperType(clazz)) {
-            if (clazz.equals(boolean.class) || clazz.equals(Boolean.class)) {
-                return clazz.cast(false);
-            } else if (clazz.equals(byte.class) || clazz.equals(Byte.class)) {
-                return clazz.cast((byte) -1);
-            } else if (clazz.equals(char.class) || clazz.equals(Character.class)) {
-                return clazz.cast((char) -1);
-            } else if (clazz.equals(double.class) || clazz.equals(Double.class)) {
-                return clazz.cast(-1D);
-            } else if (clazz.equals(float.class) || clazz.equals(Float.class)) {
-                return clazz.cast(-1F);
-            } else if (clazz.equals(int.class) || clazz.equals(Integer.class)) {
-                return clazz.cast(-1);
-            } else if (clazz.equals(long.class) || clazz.equals(Long.class)) {
-                return clazz.cast(-1L);
-            } else if (clazz.equals(short.class) || clazz.equals(Short.class)) {
-                return clazz.cast((short) -1);
-            } else if (clazz.equals(void.class) || clazz.equals(Void.class)) {
-                throw new IllegalArgumentException("Can not cast to void");
-            } else {
-                throw new IllegalArgumentException("Invalid primitive: " + clazz.getName());
-            }
-        } else {
-            return null;
         }
+        throw new ClassCastException("Config value not of valid type");
     }
 
-    default <T, C extends Collection<? super T>> C as(Class<C> collectionClazz, Class<T> type) {
-        C collection = this.as(collectionClazz);
-        if (collection.stream().filter(obj -> !type.isInstance(obj)).findAny().isPresent()) {
-            throw new ClassCastException("Improper type in collection.");
-        } else {
-            return collection;
-        }
+    default <T, C> C as(Class<T> type, Collector<T, ?, C> collector) {
+        Collection<?> collection = this.as(Collection.class);
+        return collection.stream().map(type::cast).collect(collector);
     }
 
-    default <K, V, M extends Map<? super K, ? super V>> M as(Class<M> mapClazz, Class<K> keyType, Class<V> valueType) {
-        M map = this.as(mapClazz);
-        if (map.entrySet().stream().filter(
-                entry -> !keyType.isInstance(entry.getKey())
-                        || !valueType.isInstance(entry.getValue())).findAny().isPresent()) {
-            throw new ClassCastException("Improper type in map.");
-        } else {
-            return map;
-        }
+    default <K, V, M> M as(Class<K> keyType, Class<V> valueType, Collector<Pair<K, V>, ?, M> collector) {
+        Map<?, ?> map = this.as(Map.class);
+        return map.entrySet().stream().map(entry -> new Pair<>(keyType.cast(entry.getKey()), valueType.cast(entry.getValue()))).collect(collector);
     }
 }
